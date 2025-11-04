@@ -1,7 +1,7 @@
 import sys
 import os
 import logging
-import epd2in13b_V4
+import epd2in13_V4
 from PIL import Image,ImageDraw,ImageFont
 import traceback
 
@@ -9,6 +9,7 @@ filename = 'doggo.bmp'
 logging.basicConfig(level=logging.DEBUG)
 
 try:
+    epd = epd2in13.EPD()
     logging.info('loading doggo picture')
     epd.init()
     epd.Clear()
