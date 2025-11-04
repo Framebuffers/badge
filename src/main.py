@@ -20,10 +20,10 @@ try:
     epd.display(epd.getbuffer(doggoimage))
     time.sleep(5)
     epd.Clear(0xFF)
-    epd.epdconfig.module_exit(cleanup=True)
+    epdconfig.module_exit(cleanup=True)
 except IOError as e:
     logging.info(e)
 except KeyboardInterrupt:
     logging.info('interrupting...')
-    epd2in13b_V4.epdconfig.module_exit(cleanup=True)
+    epdconfig.module_exit(cleanup=True)
     exit()
