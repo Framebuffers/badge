@@ -9,7 +9,7 @@ filename = 'doggo.bmp'
 logging.basicConfig(level=logging.DEBUG)
 
 try:
-    epd = epd2in13.EPD()
+    epd = epd2in13_V4.EPD()
     logging.info('loading doggo picture')
     epd.init()
     epd.Clear()
