@@ -16,6 +16,9 @@ try:
 
     doggoimage = Image.open(filename)
     epd.display(epd.getbuffer(doggoimage))
+    epd.sleep(5)
+    epd.Clear(0xFF)
+    epd.epdconfig.module_exit(cleanup=True)
 except IOError as e:
     logging.info(e)
 except KeyboardInterrupt:
