@@ -2,6 +2,7 @@ import sys
 import os
 import logging
 import epd2in13_V4
+import time
 from PIL import Image,ImageDraw,ImageFont
 import traceback
 
