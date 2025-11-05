@@ -1,11 +1,12 @@
 import sys
 import os
 import logging
-import epd2in13_V4
-import time
-import epdconfig
-from PIL import Image,ImageDraw,ImageFont
 import traceback
+import time
+
+from .eink import epd2in13_V4
+from .eink import epdconfig
+from PIL import Image,ImageDraw,ImageFont
 
 filename = 'doggo.bmp'
 logging.basicConfig(level=logging.DEBUG)
