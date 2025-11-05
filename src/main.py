@@ -1,6 +1,6 @@
 import logging
 import time
-from lib import EPD, epdconfig
+from hw import EPD, epdconfig
 from PIL import Image
 
 FILENAME = 'doggo.bmp'
@@ -8,7 +8,6 @@ logging.basicConfig(level=logging.DEBUG)
 
 try:
     epd = EPD()
-    """"""
 
     logging.info('loading doggo picture')
     epd.init()
