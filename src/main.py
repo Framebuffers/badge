@@ -1,28 +1,30 @@
-import sys
-import os
 import logging
-import traceback
 import time
 from lib import EPD, epdconfig
-from PIL import Image,ImageDraw,ImageFont
+from PIL import Image
 
-filename = 'doggo.bmp'
+FILENAME = 'doggo.bmp'
 logging.basicConfig(level=logging.DEBUG)
 
 try:
-    epd = epd2in13_V4.EPD()
+    epd = EPD()
     logging.info('loading doggo picture')
     epd.init()
     epd.Clear()
-
-    doggoimage = Image.open(filename)
-    epd.display(epd.getbuffer(doggoimage))
+    
+    doggo_image = Image.open(FILENAME)
+    epd.display(epd.getbuffer(doggo_image))
     time.sleep(5)
+    
     epd.Clear(0xFF)
-    epdconfig.module_exit(cleanup=True)
-except IOError as e:
-    logging.info(e)
+    epd.sleep()
+    
+except FileNotFoundError:
+    logging.error(f'{FILENAME} not found')
+    epdconfig.module_exit()
+except Exception as e:
+    logging.error(f'Error: {e}')
+    epdconfig.module_exit()
 except KeyboardInterrupt:
-    logging.info('interrupting...')
-    epdconfig.module_exit(cleanup=True)
-    exit()
+    logging.info('interrupted by user')
+    epdconfig.module_exit()
