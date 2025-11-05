@@ -1,0 +1,7 @@
+[project]
+name = "badge"
+version = "0.2.0"
+description = "framebuffer's badge"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = []
