@@ -8,6 +8,8 @@ logging.basicConfig(level=logging.DEBUG)
 
 try:
     epd = EPD()
+    """"""
+
     logging.info('loading doggo picture')
     epd.init()
     epd.Clear()
