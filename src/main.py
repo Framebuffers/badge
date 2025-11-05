@@ -4,8 +4,8 @@ import logging
 import traceback
 import time
 
-from .eink import epd2in13_V4
-from .eink import epdconfig
+from eink.epd2in13_V4 import epd2in13_V4
+from eink.epdconfig import epdconfig
 from PIL import Image,ImageDraw,ImageFont
 
 filename = 'doggo.bmp'
