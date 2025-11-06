@@ -20,19 +20,34 @@ try:
     ext = DisplayRoutines(epd)
     ext.create_canvas('horizontal')
     logging.debug(f"Image exists: {ext._image is not None}, Draw exists: {ext._draw is not None}")
-    
+
     doggo_image = Image.open(os.path.join(IMG_PATH, FILENAME))
     ext.load_txt('hello world')
     ext.display_txt(os.path.join(FONTS_PATH, 'Font.ttc'),
                     20, 0, 10, 10)
-    
+
     ext.load_img(doggo_image)
     ext.render()
+    logging.debug("Rendered doggo + text")
     time.sleep(2)
-    epd.Clear(0xFF)
+
+    ext.clear_canvas()
+    logging.debug("Canvas cleared")
+
     ext.create_qr_code('https://framebuffer.cl', 50, 10, 10)
+    logging.debug("QR code created on canvas")
+
+    if ext._image:
+        logging.debug(f"Canvas size: {ext._image.size}, mode: {ext._image.mode}")
+        ext._image.save('debug_qr_canvas.bmp')
+        logging.debug("Canvas saved to debug_qr_canvas.bmp")
+
+    ext.render()
+    logging.debug("Rendered QR code")
     time.sleep(2)
+
     epd.Clear(0xFF)
+    logging.debug("Display cleared")
     epdconfig.module_exit()
     
 except FileNotFoundError:
