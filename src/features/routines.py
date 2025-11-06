@@ -1,14 +1,15 @@
+import logging
 from hw.epd import EPD
-from PIL import Image, ImageFont
-from PIL.ImageDraw import ImageDraw
+from PIL import Image, ImageFont, ImageDraw
 
 class DisplayRoutines:
     def __init__(self, display: EPD) -> None:
         self.dp: EPD = display                      # the e-ink display itself, never null
         self.buffer: str = ''                       # whatever text to render
         self._image: Image.Image | None = None      # PIL Image
-        self._draw: ImageDraw | None = None         # ImageDraw.Draw instance
+        self._draw: ImageDraw.ImageDraw | None = None         # ImageDraw.Draw instance
         self.dp.Clear()
+        
 
     @property
     def dp_height(self) -> int:
@@ -31,10 +32,14 @@ class DisplayRoutines:
         return self._draw
     
     def create_canvas(self, orientation: str = 'horizontal') -> None:
+        logging.debug(f"Creating canvas: {orientation}")
         if orientation == 'horizontal':
             self._image = Image.new('1', (self.dp_height, self.dp_width), 255)
         else:
-            self._image = Image.new('1', (self.dp_height, self.dp_width), 255)
+            self._image = Image.new('1', (self.dp_width, self.dp_height), 255)
+
+        self._draw = ImageDraw.Draw(self._image)
+        logging.debug(f"Canvas created: image={self._image}, draw={self._draw}")
     
     def load_txt(self, txt: str) -> None:
         self.buffer = txt
