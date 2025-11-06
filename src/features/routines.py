@@ -1,6 +1,7 @@
 import logging
 from hw.epd import EPD
 from PIL import Image, ImageFont, ImageDraw, ImageFile
+import qrcode
 
 class DisplayRoutines:
     def __init__(self, display: EPD) -> None:
@@ -21,13 +22,13 @@ class DisplayRoutines:
     
     @property
     def image(self):
-        if self._image is None:
+        if not self._image:
             raise AttributeError('No image has been loaded.')
         return self._image
     
     @property
     def canvas(self):
-        if self._draw is None:
+        if not self._draw:
             raise AttributeError('There is no instance of ImageDraw canvas to draw to.')
         return self._draw
     
@@ -87,3 +88,27 @@ class DisplayRoutines:
         """Reset canvas to white"""
         if self._image:
             self._draw.rectangle((0, 0, self._image.width, self._image.height), fill=255) # type: ignore
+    
+    def create_qr_code(self, data: str, size: int, x: int, y: int) -> None:
+        """Create QR code at (x, y). Coordinates are top-left corner of QR code."""
+        if not self._image:
+            raise RuntimeError('Canvas not created. Call create_canvas() first')
+        
+        if x < 0 or y < 0:
+            raise IndexError('QR code position cannot be negative')
+        
+        if x + size > self._image.width or y + size > self._image.height:
+            raise IndexError('QR code overflows canvas boundaries')
+        
+        qr = qrcode.QRCode(
+            box_size=1, 
+            border=0,
+            version=1,
+            error_correction=qrcode.ERROR_CORRECT_L)
+        qr.add_data(data)
+        qr.make(fit=True)
+        qr_img = qr.make_image(fill_color="black", back_color="white")
+        qr_img = qr_img.resize((size, size), Image.Resampling.NEAREST) # type: ignore
+        
+        self._image.paste(qr_img, (x, y))
+        
