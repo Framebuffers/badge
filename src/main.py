@@ -8,6 +8,7 @@ from PIL import Image
 
 FILENAME = 'doggo.bmp'
 IMG_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'img')
+FONTS_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'fonts')
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -18,11 +19,10 @@ try:
     logging.info('loaded routines & clear')
     ext = DisplayRoutines(epd)
     ext.create_canvas('horizontal')
-    epd.Clear()
     
     doggo_image = Image.open(os.path.join(IMG_PATH, FILENAME))
     ext.load_txt('hello world')
-    ext.display_txt(os.path.join(IMG_PATH, FILENAME),
+    ext.display_txt(os.path.join(FONTS_PATH, 'Font.ttc'),
                     20, 0, 10, 10)
     # epd.display(epd.getbuffer(doggo_image))
     ext.render()

@@ -8,6 +8,7 @@ class DisplayRoutines:
         self.buffer: str = ''                       # whatever text to render
         self._image: Image.Image | None = None      # PIL Image
         self._draw: ImageDraw | None = None         # ImageDraw.Draw instance
+        self.dp.Clear()
 
     @property
     def dp_height(self) -> int:
