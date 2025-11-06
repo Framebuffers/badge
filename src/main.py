@@ -1,9 +1,10 @@
 import os
 import logging
 import time
+
 from hw import EPD, epdconfig
+from features import DisplayRoutines
 from PIL import Image
-from .features.routines import DisplayRoutines
 
 FILENAME = 'doggo.bmp'
 IMG_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'img')
