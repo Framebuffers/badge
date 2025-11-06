@@ -19,6 +19,7 @@ try:
     logging.info('loaded routines & clear')
     ext = DisplayRoutines(epd)
     ext.create_canvas('horizontal')
+    logging.debug(f"Image exists: {ext._image is not None}, Draw exists: {ext._draw is not None}")
     
     doggo_image = Image.open(os.path.join(IMG_PATH, FILENAME))
     ext.load_txt('hello world')
