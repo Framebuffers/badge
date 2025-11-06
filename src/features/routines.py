@@ -1,5 +1,5 @@
 import os
-from ..hw import EPD
+from ..hw.epd import EPD
 from PIL import Image, ImageFont
 from PIL.ImageDraw import ImageDraw
 
