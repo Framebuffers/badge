@@ -17,10 +17,10 @@ try:
     epd.init()
     logging.info('loaded routines & clear')
     ext = DisplayRoutines(epd)
+    ext.create_canvas('horizontal')
     epd.Clear()
     
     doggo_image = Image.open(os.path.join(IMG_PATH, FILENAME))
-    ext.create_canvas('horizontal')
     ext.load_txt('hello world')
     ext.display_txt(os.path.join(IMG_PATH, FILENAME),
                     20, 0, 10, 10)
