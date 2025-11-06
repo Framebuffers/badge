@@ -1,12 +1,12 @@
 import logging
 from hw.epd import EPD
-from PIL import Image, ImageFont, ImageDraw
+from PIL import Image, ImageFont, ImageDraw, ImageFile
 
 class DisplayRoutines:
     def __init__(self, display: EPD) -> None:
-        self.dp: EPD = display                      # the e-ink display itself, never null
-        self.buffer: str = ''                       # whatever text to render
-        self._image: Image.Image | None = None      # PIL Image
+        self.dp: EPD = display                                # the e-ink display itself, never null
+        self.buffer: str = ''                                 # whatever text to render
+        self._image: Image.Image | None = None                # PIL Image
         self._draw: ImageDraw.ImageDraw | None = None         # ImageDraw.Draw instance
         self.dp.Clear()
         
@@ -79,6 +79,9 @@ class DisplayRoutines:
             raise RuntimeError('Canvas not created. Call create_canvas() first')
         
         self.dp.display(self.dp.getbuffer(self._image))
+    
+    def load_img(self, img: ImageFile.ImageFile) -> None:
+        self.dp.display(self.dp.getbuffer(img))
     
     def clear_canvas(self) -> None:
         """Reset canvas to white"""
