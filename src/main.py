@@ -28,10 +28,12 @@ try:
     
     ext.load_img(doggo_image)
     ext.render()
-    time.sleep(5)
+    time.sleep(2)
     epd.Clear(0xFF)
-
-    epd.sleep()
+    ext.create_qr_code('https://framebuffer.cl', 50, 10, 10)
+    time.sleep(2)
+    epd.Clear(0xFF)
+    epdconfig.module_exit()
     
 except FileNotFoundError:
     logging.error(f'{FILENAME} not found')
