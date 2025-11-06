@@ -25,11 +25,13 @@ try:
     ext.load_txt('hello world')
     ext.display_txt(os.path.join(FONTS_PATH, 'Font.ttc'),
                     20, 0, 10, 10)
-    # epd.display(epd.getbuffer(doggo_image))
+    
+    epd.display(epd.getbuffer(doggo_image))
     ext.render()
     time.sleep(5)
-    
     epd.Clear(0xFF)
+
+    
     epd.sleep()
     
 except FileNotFoundError:
