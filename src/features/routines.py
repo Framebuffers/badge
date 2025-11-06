@@ -3,8 +3,6 @@ from ..hw import EPD
 from PIL import Image, ImageFont
 from PIL.ImageDraw import ImageDraw
 
-FONTS_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'fonts')
-
 class DisplayRoutines:
     def __init__(self, display: EPD) -> None:
         self.dp: EPD = display                      # the e-ink display itself, never null
