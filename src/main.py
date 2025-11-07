@@ -22,7 +22,7 @@ try:
     logging.debug(f"Image exists: {ext._image is not None}, Draw exists: {ext._draw is not None}")
 
     doggo_image = Image.open(os.path.join(IMG_PATH, FILENAME))
-    ext.load_txt('hello world')
+    ext.load_txt('y so soff and squishy????????')
     ext.display_txt(os.path.join(FONTS_PATH, 'Font.ttc'),
                     20, 0, 10, 10)
 
