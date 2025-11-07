@@ -34,7 +34,7 @@ try:
     ext.clear_canvas()
     logging.debug("Canvas cleared")
 
-    ext.create_qr_code('https://framebuffer.cl', 50, 10, 10)
+    ext.create_qr_code('https://https://www.youtube.com/watch?v=dQw4w9WgXcQ', 50, 10, 10)
     logging.debug("QR code created on canvas")
 
     if ext._image:
