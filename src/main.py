@@ -61,9 +61,17 @@ try:
     ext = DisplayRoutines(epd)
     
     test_canvas_create(ext)
-    test_text(ext, 'hewwo owo')
     test_image(ext, DOGGO_IMG)
+    test_text(ext, 'hewwo owo')
     test_qr(ext, 'https://https://www.youtube.com/watch?v=dQw4w9WgXcQ', 50, 10, 10)
+
+    for img in os.listdir(IMG_PATH):
+        as_bmp = Image.open(os.path.join(IMG_PATH, img))
+        bmp = as_bmp.convert('1')
+        bmp.resize((epd.width, epd.height), Image.ANTIALIAS) # type: ignore 
+        img_path = os.path.join(IMG_PATH, img)
+        logging.info(f'Testing image: {img_path}')
+        test_image(ext, Image.open(img_path), wait=3)
 
     epd.Clear(0xFF)
     logging.debug("Display cleared")
