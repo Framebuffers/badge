@@ -52,7 +52,7 @@ def img_to_bmp(img: Image.Image, epd: EPD) -> Image.Image:
     """Convert image to 1-bit BMP format suitable for e-ink displays."""
     logging.debug("Converting image to 1-bit BMP format")
     img_1b = img.convert('1')  # Convert to 1-bit pixels, black and white
-    img_resized = img_1b.resize((epd.width, epd.height), Image.ANTIALIAS) # type: ignore
+    img_resized = img_1b.resize((epd.width, epd.height)) # type: ignore
     logging.debug("Conversion and resizing complete")
     return img_resized
 
@@ -66,6 +66,21 @@ try:
     
     test_canvas_create(ext)
     test_image(ext, DOGGO_IMG)
+    logging.info(f'loading text:')
+
+    ext.load_txt('owo')
+    ext.display_txt(os.path.join(FONTS_PATH, 'Font.ttc'),
+                    20, 0, 10, 10)
+    time.sleep(5)
+    ext.clear_canvas()
+    
+    # ext.load_txt('test')
+    # ext.display_txt(os.path.join(FONTS_PATH, 'Font.ttc'),
+    #                 20, 0, 10, 10)
+    # time.sleep(5)
+    # ext.clear_canvas()
+
+    
     test_text(ext, 'hewwo owo')
     test_qr(ext, 'https://https://www.youtube.com/watch?v=dQw4w9WgXcQ', 50, 10, 10)
     
