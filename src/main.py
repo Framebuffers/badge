@@ -13,7 +13,7 @@ DOGGO_IMG = Image.open(os.path.join(IMG_PATH, FILENAME))
 
 logging.basicConfig(level=logging.DEBUG)
 
-def test_text(display: DisplayRoutines, text: str) -> None:
+def test_text(display: DisplayRoutines, text: str, wait: int = 5) -> None:
     if display is None:
         raise RuntimeError('Display instance is null.')
     
@@ -21,14 +21,16 @@ def test_text(display: DisplayRoutines, text: str) -> None:
     display.load_txt(text)
     display.display_txt(os.path.join(FONTS_PATH, 'Font.ttc'),
                     20, 0, 10, 10)
+
+    time.sleep(wait)
     display.clear_canvas()
     logging.info('Canvas cleared')
   
-def test_image(display: DisplayRoutines, img):
+def test_image(display: DisplayRoutines, img, wait: int = 5):
     display.load_img(img)
     display.render()
     logging.debug("Rendered image")
-    time.sleep(2)
+    time.sleep(wait)
     display.clear_canvas()
     logging.info('Canvas cleared')
 
@@ -37,7 +39,7 @@ def test_canvas_create(display: DisplayRoutines, orientation: str = 'horizontal'
     display.create_canvas(orientation)
     logging.debug(f"Image exists: {display._image is not None}, Draw exists: {display._draw is not None}")
 
-def test_qr(display: DisplayRoutines, text: str, size, x, y):
+def test_qr(display: DisplayRoutines, text: str, size, x, y, wait: int = 5):
     display.create_qr_code(text, size, x, y)
     logging.debug("QR code created on canvas")
     if display._image:
@@ -46,7 +48,7 @@ def test_qr(display: DisplayRoutines, text: str, size, x, y):
         logging.debug("Canvas saved to debug_qr_canvas.bmp")
     ext.render()
     logging.debug("Rendered QR code")
-    time.sleep(2)
+    time.sleep(wait)
     display.clear_canvas()
     logging.info('Canvas cleared')
 
