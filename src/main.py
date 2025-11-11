@@ -14,14 +14,10 @@ DOGGO_IMG = Image.open(os.path.join(IMG_PATH, FILENAME))
 logging.basicConfig(level=logging.DEBUG)
 
 def test_text(display: DisplayRoutines, text: str, wait: int = 5) -> None:
-    if display is None:
-        raise RuntimeError('Display instance is null.')
-    
     logging.info(f'loading text: {text}')
     display.load_txt(text)
     display.display_txt(os.path.join(FONTS_PATH, 'Font.ttc'),
                     20, 0, 10, 10)
-
     time.sleep(wait)
     display.clear_canvas()
     logging.info('Canvas cleared')
@@ -52,6 +48,14 @@ def test_qr(display: DisplayRoutines, text: str, size, x, y, wait: int = 5):
     display.clear_canvas()
     logging.info('Canvas cleared')
 
+def img_to_bmp(img: Image.Image, epd: EPD) -> Image.Image:
+    """Convert image to 1-bit BMP format suitable for e-ink displays."""
+    logging.debug("Converting image to 1-bit BMP format")
+    img_1b = img.convert('1')  # Convert to 1-bit pixels, black and white
+    img_resized = img_1b.resize((epd.width, epd.height), Image.ANTIALIAS) # type: ignore
+    logging.debug("Conversion and resizing complete")
+    return img_resized
+
 try:
     epd = EPD()
     logging.info('init display')
@@ -64,15 +68,15 @@ try:
     test_image(ext, DOGGO_IMG)
     test_text(ext, 'hewwo owo')
     test_qr(ext, 'https://https://www.youtube.com/watch?v=dQw4w9WgXcQ', 50, 10, 10)
-
+    
     for img in os.listdir(IMG_PATH):
-        as_bmp = Image.open(os.path.join(IMG_PATH, img))
-        bmp = as_bmp.convert('1')
-        bmp.resize((epd.width, epd.height), Image.ANTIALIAS) # type: ignore 
-        img_path = os.path.join(IMG_PATH, img)
-        logging.info(f'Testing image: {img_path}')
-        test_image(ext, Image.open(img_path), wait=3)
-
+        if img.lower().endswith(('.bmp', '.png', '.jpg', '.jpeg')):
+            img_path = os.path.join(IMG_PATH, img)
+            logging.info(f'Testing image: {img_path}')
+            image = Image.open(img_path)
+            bmp_image = img_to_bmp(image, epd)
+            test_image(ext, bmp_image, wait=3)
+            
     epd.Clear(0xFF)
     logging.debug("Display cleared")
     epdconfig.module_exit()
