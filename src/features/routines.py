@@ -90,8 +90,8 @@ class DisplayRoutines:
         if fast:
             self.set_fast_mode(True)
             self.dp.display_fast(self.dp.getbuffer(self._image))
-
-        self.dp.display(self.dp.getbuffer(self._image))
+        else:
+            self.dp.display(self.dp.getbuffer(self._image))
     
     def load_img(self, img: ImageFile.ImageFile) -> None:
         self.dp.display(self.dp.getbuffer(img))

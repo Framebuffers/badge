@@ -1,6 +1,7 @@
 import os
 import logging
 import time
+import datetime
 from typing import Literal, List
 from hw import EPD, epdconfig
 from features import DisplayRoutines
@@ -114,10 +115,40 @@ def test_fast_mode(display: DisplayRoutines, img: List[Image.Image], wait: int =
         display.render(fast=True)
         time.sleep(wait)
 
+# def _realtime_clock(display: DisplayRoutines, img: Image.Image, duration: int = 30):
+#       logging.info('Testing real-time clock')
+
+#       display._image = img.copy()
+#       display.render(fast=False)
+
+#       for i in range(duration):
+#           draw = ImageDraw.Draw(display._image)
+#           draw.rectangle((10, 10, 150, 40), fill=255)
+
+#           current_time = datetime.datetime.now().strftime('%H:%M:%S')
+#           display.load_txt(current_time)
+#           display.display_txt(
+#               os.path.join(FONTS_PATH, 'Font.ttc'),
+#               20,
+#               0,
+#               10,
+#               10
+#           )
+
+#           if i > 0 and i % 10 == 0:
+#               display.render(fast=False)
+#           else:
+#               display.render(fast=True)
+
+#           logging.debug(f'Clock update {i+1}/{duration}: {current_time}')
+#           time.sleep(1)
+
+#       display.clear_canvas()
+#       logging.info('Clock test complete')
+
 def test_render_partial(display: DisplayRoutines, img: Image.Image, loops: int = 5):
     logging.info('Testing partial refresh with clock')
     
-    # Show background once with full refresh
     display._image = img.copy()
     display.render(fast=False)
     
