@@ -74,7 +74,6 @@ try:
     
     test_canvas_create(ext)
     test_text(ext, 'hewo')
-
     
     for img in os.listdir(os.path.join(IMG_PATH, 'test')):
         if img.lower().endswith(('.bmp', '.png', '.jpg', '.jpeg')):
@@ -85,15 +84,7 @@ try:
             test_image(ext, bmp_image, wait=3)
 
     test_qr(ext, 'https://https://www.youtube.com/watch?v=dQw4w9WgXcQ', 50, 10, 10)
-    
-    for img in os.listdir(IMG_PATH):
-        if img.lower().endswith(('.bmp', '.png', '.jpg', '.jpeg')):
-            img_path = os.path.join(IMG_PATH, img)
-            logging.info(f'Testing image: {img_path}')
-            image = Image.open(img_path)
-            bmp_image = img_to_bmp(image, epd)
-            test_image(ext, bmp_image, wait=3, aspect_ratio='fit')
-            
+   
     epd.Clear(0xFF)
     logging.debug("Display cleared")
     epdconfig.module_exit()
