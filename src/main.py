@@ -77,7 +77,7 @@ try:
     
     for img in os.listdir(os.path.join(IMG_PATH, 'test')):
         if img.lower().endswith(('.bmp', '.png', '.jpg', '.jpeg')):
-            img_path = os.path.join(IMG_PATH, img)
+            img_path = os.path.join(IMG_PATH, 'test', img)
             logging.info(f'Testing image: {img_path}')
             image = Image.open(img_path)
             bmp_image = img_to_bmp(image, epd)
