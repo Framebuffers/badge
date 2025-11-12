@@ -148,16 +148,16 @@ def test_fast_mode(display: DisplayRoutines, img: List[Image.Image], wait: int =
 
 def test_render_partial(display: DisplayRoutines, img: Image.Image, loops: int = 5):
     logging.info('Testing partial refresh with clock')
-    
+
     display._image = img.copy()
+    display._draw = ImageDraw.Draw(display._image)  # Update _draw to point to new image
     display.render(fast=False)
-    
+
     start_time = time.time()
-    
+
     for i in range(loops):
         # creates a dedicated area for the text
-        draw = ImageDraw.Draw(display._image)
-        draw.rectangle((10, 10, 100, 35), fill=255)
+        display._draw.rectangle((10, 10, 100, 35), fill=255)
         
         elapsed = time.time() - start_time
         display.load_txt(f'{elapsed:.1f}s')
