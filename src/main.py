@@ -179,13 +179,16 @@ try:
     ext = DisplayRoutines(epd)
     
     test_path = os.path.join(IMG_PATH, 'test')
-    image_files = [f for f in os.listdir(test_path) 
+    image_files = [f for f in os.listdir(test_path)
                if f.lower().endswith(('.bmp', '.png', '.jpg', '.jpeg'))]
 
-    random_pic = Image.open(os.path.join(test_path, random.choice(image_files))) \
-    if image_files else Image.new('1', (epd.width, epd.height), 255) 
-            
-    logging.debug(f"Random test image loaded: size={random_pic.size}, mode={random_pic.mode}")
+    if image_files:
+        random_file = random.choice(image_files)
+        random_pic = Image.open(os.path.join(test_path, random_file))
+        logging.debug(f"Random test image loaded: {random_file}, size={random_pic.size}, mode={random_pic.mode}")
+    else:
+        random_pic = Image.new('1', (epd.width, epd.height), 255)
+        logging.debug("No test images found, using blank image")
     test_canvas_create(ext)
 
     # testing drawing text
@@ -208,7 +211,8 @@ try:
         logging.debug("Tested tile mode")
 
     # testing partial rendering
-    test_render_partial(ext, random_pic, 10)
+    bmp_for_partial = img_to_bmp(random_pic, epd)
+    test_render_partial(ext, bmp_for_partial, 10)
     logging.debug("Tested partial rendering")
     
     # test refreshing the base image
