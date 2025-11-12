@@ -6,10 +6,8 @@ from hw import EPD, epdconfig
 from features import DisplayRoutines
 from PIL import Image
 
-FILENAME = 'doggo.bmp'
 IMG_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'img')
 FONTS_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'fonts')
-DOGGO_IMG = Image.open(os.path.join(IMG_PATH, FILENAME))
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -18,12 +16,23 @@ def test_text(display: DisplayRoutines, text: str, wait: int = 5) -> None:
     display.load_txt(text)
     display.display_txt(os.path.join(FONTS_PATH, 'Font.ttc'),
                     20, 0, 10, 10)
+    display.render()
     time.sleep(wait)
     display.clear_canvas()
     logging.info('Canvas cleared')
   
-def test_image(display: DisplayRoutines, img, wait: int = 5):
-    display.load_img(img)
+def test_image(display: DisplayRoutines, img, wait: int = 5, aspect_ratio: str = 'fit'):
+    img_resized = Image.new('1', (display.dp.width, display.dp.height), 255)
+    
+    if aspect_ratio == 'fit':
+        img.thumbnail((display.dp.width, display.dp.height))
+        x = (display.dp.width - img.width) // 2
+        y = (display.dp.height - img.height) // 2
+        img_resized.paste(img, (x, y))
+    else:
+        img_resized = img.resize((display.dp.width, display.dp.height))
+        
+    display._image = img_resized
     display.render()
     logging.debug("Rendered image")
     time.sleep(wait)
@@ -49,7 +58,6 @@ def test_qr(display: DisplayRoutines, text: str, size, x, y, wait: int = 5):
     logging.info('Canvas cleared')
 
 def img_to_bmp(img: Image.Image, epd: EPD) -> Image.Image:
-    """Convert image to 1-bit BMP format suitable for e-ink displays."""
     logging.debug("Converting image to 1-bit BMP format")
     img_1b = img.convert('1')  # Convert to 1-bit pixels, black and white
     img_resized = img_1b.resize((epd.width, epd.height)) # type: ignore
@@ -65,23 +73,17 @@ try:
     ext = DisplayRoutines(epd)
     
     test_canvas_create(ext)
-    test_image(ext, DOGGO_IMG)
-    logging.info(f'loading text:')
-
-    ext.load_txt('owo')
-    ext.display_txt(os.path.join(FONTS_PATH, 'Font.ttc'),
-                    20, 0, 10, 10)
-    time.sleep(5)
-    ext.clear_canvas()
-    
-    # ext.load_txt('test')
-    # ext.display_txt(os.path.join(FONTS_PATH, 'Font.ttc'),
-    #                 20, 0, 10, 10)
-    # time.sleep(5)
-    # ext.clear_canvas()
+    test_text(ext, 'hewo')
 
     
-    test_text(ext, 'hewwo owo')
+    for img in os.listdir(os.path.join(IMG_PATH, 'test')):
+        if img.lower().endswith(('.bmp', '.png', '.jpg', '.jpeg')):
+            img_path = os.path.join(IMG_PATH, img)
+            logging.info(f'Testing image: {img_path}')
+            image = Image.open(img_path)
+            bmp_image = img_to_bmp(image, epd)
+            test_image(ext, bmp_image, wait=3)
+
     test_qr(ext, 'https://https://www.youtube.com/watch?v=dQw4w9WgXcQ', 50, 10, 10)
     
     for img in os.listdir(IMG_PATH):
@@ -90,14 +92,14 @@ try:
             logging.info(f'Testing image: {img_path}')
             image = Image.open(img_path)
             bmp_image = img_to_bmp(image, epd)
-            test_image(ext, bmp_image, wait=3)
+            test_image(ext, bmp_image, wait=3, aspect_ratio='fit')
             
     epd.Clear(0xFF)
     logging.debug("Display cleared")
     epdconfig.module_exit()
     
 except FileNotFoundError:
-    logging.error(f'{FILENAME} not found')
+    logging.error(f'File not found')
     epdconfig.module_exit()
 except Exception as e:
     logging.error(f'Error: {e}')
@@ -105,6 +107,4 @@ except Exception as e:
 except KeyboardInterrupt:
     logging.info('interrupted by user')
     epdconfig.module_exit()
-
-
   
