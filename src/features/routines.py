@@ -9,9 +9,10 @@ class DisplayRoutines:
         self.buffer: str = ''                                 # whatever text to render
         self._image: Image.Image | None = None                # PIL Image
         self._draw: ImageDraw.ImageDraw | None = None         # ImageDraw.Draw instance
+        self._refresh_counter: int = 0
+        self._fast_mode: bool = False
         self.dp.Clear()
         
-
     @property
     def dp_height(self) -> int:
         return self.dp.height
@@ -31,6 +32,14 @@ class DisplayRoutines:
         if not self._draw:
             raise AttributeError('There is no instance of ImageDraw canvas to draw to.')
         return self._draw
+    
+    @property
+    def refresh_counter(self) -> int:
+        return self._refresh_counter
+    
+    @property
+    def fast_mode(self) -> bool:
+        return self._fast_mode
     
     def create_canvas(self, orientation: str = 'horizontal') -> None:
         logging.debug(f"Creating canvas: {orientation}")
@@ -74,11 +83,14 @@ class DisplayRoutines:
         
         self._draw.arc((x1, y1, x2, y2), start, end, fill=fill)
     
-    def render(self) -> None:
+    def render(self, fast: bool = False) -> None:
         """Send canvas to display"""
         if not self._image:
             raise RuntimeError('Canvas not created. Call create_canvas() first')
-        
+        if fast:
+            self.set_fast_mode(True)
+            self.dp.display_fast(self.dp.getbuffer(self._image))
+
         self.dp.display(self.dp.getbuffer(self._image))
     
     def load_img(self, img: ImageFile.ImageFile) -> None:
@@ -86,8 +98,11 @@ class DisplayRoutines:
     
     def clear_canvas(self) -> None:
         """Reset canvas to white"""
-        if self._image:
-            self._draw.rectangle((0, 0, self._image.width, self._image.height), fill=255) # type: ignore
+        if not self._draw or not self._image:
+            raise RuntimeError('Canvas not created. Call create_canvas() first')
+        
+        self.buffer = ''
+        self.dp.Clear()
     
     def create_qr_code(self, data: str, size: int, x: int, y: int) -> None:
         """Create QR code at (x, y). Coordinates are top-left corner of QR code."""
@@ -112,3 +127,29 @@ class DisplayRoutines:
         
         self._image.paste(qr_img, (x, y))
         
+    def set_fast_mode(self, enabled: bool) -> None:
+        if self._refresh_counter >= 5 and enabled:
+            self.reset_refresh_counter()
+            logging.warning("Five refreseshes reached, performing a full refresh")
+        
+        self._fast_mode = enabled
+        self._refresh_counter += 1
+        logging.debug(f"Fast mode set to {enabled}, refresh counter: {self._refresh_counter}")        
+    
+    def render_partial(self) -> None:
+        """Render using fast mode if enabled"""
+        if not self._image:
+            raise RuntimeError('Canvas not created. Call create_canvas() first')
+        
+        self.dp.displayPartial(self.dp.getbuffer(self._image))
+        self._refresh_counter += 1
+    
+    def reset_refresh_counter(self) -> None:
+        self._refresh_counter = 0
+        logging.debug("Refresh counter reset to 0")
+        self._fast_mode = False
+        self.dp.Clear()
+    
+    def refresh_base_img(self, img: Image.Image) -> None:
+        """Refreshes the base image with the provided one"""
+        self.dp.displayPartBaseImage(img)
