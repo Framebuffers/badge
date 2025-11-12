@@ -72,7 +72,7 @@ def test_qr(display: DisplayRoutines, text: str, size, x, y, wait: int = 5):
 
 def img_to_bmp(img: Image.Image, epd: EPD) -> Image.Image:
     logging.debug("Converting image to 1-bit BMP format")
-    img_1b = img.convert('1')  # Convert to 1-bit pixels, black and white
+    img_1b = img.convert('1') # 1 == black and white, 1bpp
     img_resized = img_1b.resize((epd.width, epd.height)) # type: ignore
     logging.debug("Conversion and resizing complete")
     return img_resized
@@ -106,15 +106,19 @@ def test_render_partial(display: DisplayRoutines, img: Image.Image, loops: int =
 def test_draw_shapes(display: DisplayRoutines, wait: int = 5):
     random.seed(621)
     display.create_canvas('horizontal')
-    
+
     for _ in range(10):
-        x1 = random.randint(0, display.dp_width - 1)
-        y1 = random.randint(0, display.dp_height - 1)
-        x2 = random.randint(0, display.dp_width - 1)
-        y2 = random.randint(0, display.dp_height - 1)
-        
+        x1_temp = random.randint(0, display.dp_width - 1)
+        y1_temp = random.randint(0, display.dp_height - 1)
+        x2_temp = random.randint(0, display.dp_width - 1)
+        y2_temp = random.randint(0, display.dp_height - 1)
+
+        # Ensure coordinates are in correct order (top-left to bottom-right)
+        x1, x2 = min(x1_temp, x2_temp), max(x1_temp, x2_temp)
+        y1, y2 = min(y1_temp, y2_temp), max(y1_temp, y2_temp)
+
         shape_type = random.choice(['line', 'rectangle', 'arc'])
-        
+
         if shape_type == 'line':
             display.draw_line(x1, y1, x2, y2, fill=random.choice([0, 255]))
         elif shape_type == 'rectangle':
