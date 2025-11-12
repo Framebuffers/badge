@@ -109,8 +109,8 @@ def test_refresh_base(display: DisplayRoutines, img: Image.Image, wait: int = 5)
     time.sleep(wait)
 
 def test_fast_mode(display: DisplayRoutines, img: List[Image.Image], wait: int = 5):
-    for i in img:
-        logging.debug(f"Fast mode test iteration {i}")
+    for idx, i in enumerate(img):
+        logging.debug(f"Fast mode test iteration {idx}")
         display._image = i
         display.render(fast=True)
         time.sleep(wait)
@@ -262,7 +262,8 @@ try:
     logging.debug("Tested QR code generation")
     
     # testing fast mode
-    test_fast_mode(ext, [random_pic for _ in range(10)], wait=1)
+    bmp_for_fast = img_to_bmp(random_pic, epd)
+    test_fast_mode(ext, [bmp_for_fast for _ in range(10)], wait=1)
     logging.debug("Tested fast mode rendering")
     
     epd.Clear(0xFF)
