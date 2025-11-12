@@ -25,9 +25,10 @@ def test_text(display: DisplayRoutines, text: str, wait: int = 5) -> None:
   
 def _change_aspect_ratio(display: DisplayRoutines, img: Image.Image, 
                          aspect_ratio: Literal['stretch', 'center', 'fit', 'tile'] = 'fit') -> Image.Image:
+
     logging.info(f'Changing aspect ratio: {aspect_ratio}')
     img_resized = Image.new('1', (display.dp.width, display.dp.height), 255)
-    
+
     if aspect_ratio == 'stretch':
         img_resized = img.resize((display.dp.width, display.dp.height))
         
@@ -83,8 +84,6 @@ def test_qr(display: DisplayRoutines, text: str, size, x, y, wait: int = 5):
     logging.debug("QR code created on canvas")
     if display._image:
         logging.debug(f"Canvas size: {display._image.size}, mode: {display._image.mode}")
-        display._image.save('debug_qr_canvas.bmp')
-        logging.debug("Canvas saved to debug_qr_canvas.bmp")
     ext.render()
     logging.debug("Rendered QR code")
     time.sleep(wait)
@@ -128,10 +127,10 @@ def test_render_partial(display: DisplayRoutines, img: Image.Image, loops: int =
         display.load_txt(f'{elapsed:.1f}s')
         display.display_txt(
             os.path.join(FONTS_PATH, 'Font.ttc'),
-            size=20,
-            x=10,
-            y=10,
-            fill=32
+            20,
+            0,
+            10,
+            10
         )
         
         display.render(fast=True)
