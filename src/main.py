@@ -104,12 +104,27 @@ def test_render_partial(display: DisplayRoutines, img: Image.Image, loops: int =
     logging.info('Canvas cleared')
 
 def test_draw_shapes(display: DisplayRoutines, wait: int = 5):
+    random.seed(621)
     display.create_canvas('horizontal')
-    display.draw_line(10, 10, 200, 10)
-    display.draw_rectangle(10, 20, 100, 60, fill=128, outline=0)
-    display.draw_arc(120, 20, 200, 100, start=0, end=180, fill=0)
+    
+    for _ in range(10):
+        x1 = random.randint(0, display.dp_width - 1)
+        y1 = random.randint(0, display.dp_height - 1)
+        x2 = random.randint(0, display.dp_width - 1)
+        y2 = random.randint(0, display.dp_height - 1)
+        
+        shape_type = random.choice(['line', 'rectangle', 'arc'])
+        
+        if shape_type == 'line':
+            display.draw_line(x1, y1, x2, y2, fill=random.choice([0, 255]))
+        elif shape_type == 'rectangle':
+            display.draw_rectangle(x1, y1, x2, y2, fill=128, outline=0)
+        else:
+            display.draw_arc(x1, y1, x2, y2, start=0, end=180, fill=0)
+
     logging.debug("Shapes drawn on canvas")
     display.render()
+    
     time.sleep(wait)
     display.clear_canvas()
     logging.info('Canvas cleared')
@@ -122,40 +137,56 @@ try:
     logging.info('loaded routines & clear')
     ext = DisplayRoutines(epd)
     
-    test_canvas_create(ext)
-    test_text(ext, 'hewo')
-    test_draw_shapes(ext)
-    
-    random_pic = Image.open(random.choice(os.listdir(os.path.join(IMG_PATH, 'test'))))
-    
-    # testing fit modes 
-    for img in os.listdir(os.path.join(IMG_PATH, 'test')):
-        if img.lower().endswith(('.bmp', '.png', '.jpg', '.jpeg')):
-            img_path = os.path.join(IMG_PATH, 'test', img)
-            logging.info(f'Testing image: {img_path}')
-            image = Image.open(img_path)
-            bmp_image = img_to_bmp(image, epd)
-            test_image(ext, bmp_image, wait=3, aspect_ratio='fit')
-            test_image(ext, bmp_image, wait=3, aspect_ratio='center')
-            test_image(ext, bmp_image, wait=3, aspect_ratio='stretch')
-            test_image(ext, bmp_image, wait=3, aspect_ratio='tile')
+    test_path = os.path.join(IMG_PATH, 'test')
+    image_files = [f for f in os.listdir(test_path) 
+               if f.lower().endswith(('.bmp', '.png', '.jpg', '.jpeg'))]
+
+    random_pic = Image.open(os.path.join(test_path, random.choice(image_files))) \
+    if image_files else Image.new('1', (epd.width, epd.height), 255) 
             
+    logging.debug(f"Random test image loaded: size={random_pic.size}, mode={random_pic.mode}")
+    test_canvas_create(ext)
+
+    # testing drawing text
+    test_text(ext, 'hewo')
+    
+    # testing drawing shapes
+    test_draw_shapes(ext)
+   
+    # testing fit modes    
+    for _ in range(2):
+        test_image(ext, random_pic, wait=3, aspect_ratio='fit')
+        logging.debug("Tested fit mode")
+        
+        test_image(ext, random_pic, wait=3, aspect_ratio='center')
+        logging.debug("Tested center mode")
+        test_image(ext, random_pic, wait=3, aspect_ratio='stretch')
+        logging.debug("Tested stretch mode")
+        
+        test_image(ext, random_pic, wait=3, aspect_ratio='tile')
+        logging.debug("Tested tile mode")
+
     # testing partial rendering
     test_render_partial(ext, random_pic, 10)
-        
-    for img in os.listdir(os.path.join(IMG_PATH, 'test')):
-        if img.lower().endswith(('.bmp', '.png', '.jpg', '.jpeg')):
-            img_path = os.path.join(IMG_PATH, 'test', img)
-            logging.info(f'Testing refresh base image: {img_path}')
-            image = Image.open(img_path)
-            bmp_image = img_to_bmp(image, epd)
-            test_refresh_base(ext, bmp_image, wait=2)        
+    logging.debug("Tested partial rendering")
     
+    # test refreshing the base image
+    for _ in range(2):
+        bmp = img_to_bmp(random_pic, epd)
+        test_refresh_base(ext, bmp, wait=3)
+        logging.debug("Tested refreshing base image")
+     
+    # testing QR code generation
     test_qr(ext, 'https://https://www.youtube.com/watch?v=dQw4w9WgXcQ', 50, 10, 10)
+    logging.debug("Tested QR code generation")
+    
+    # testing fast mode
     test_fast_mode(ext, [random_pic for _ in range(10)], wait=1)
+    logging.debug("Tested fast mode rendering")
     
     epd.Clear(0xFF)
     logging.debug("Display cleared")
+    logging.info('\ndone')
     epdconfig.module_exit()
     
 except FileNotFoundError:
