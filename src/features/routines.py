@@ -152,4 +152,4 @@ class DisplayRoutines:
     
     def refresh_base_img(self, img: Image.Image) -> None:
         """Refreshes the base image with the provided one"""
-        self.dp.displayPartBaseImage(img)
+        self.dp.displayPartBaseImage(self.dp.getbuffer(img))
