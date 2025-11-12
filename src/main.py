@@ -53,6 +53,9 @@ def _change_aspect_ratio(display: DisplayRoutines, img: Image.Image,
         img_resized.paste(img_copy, (x, y))
         
     elif aspect_ratio == 'tile':
+        if img.width == 0 or img.height == 0:
+            logging.warning(f"Cannot tile image with 0 dimensions: {img.size}")
+            return img_resized  # Return blank canvas
         for y in range(0, display.dp.height, img.height):
             for x in range(0, display.dp.width, img.width):
                 # if tiles are out of bounds, crop
@@ -91,9 +94,11 @@ def test_qr(display: DisplayRoutines, text: str, size, x, y, wait: int = 5):
     logging.info('Canvas cleared')
 
 def img_to_bmp(img: Image.Image, epd: EPD) -> Image.Image:
-    logging.debug("Converting image to 1-bit BMP format")
+    logging.debug(f"Converting image to 1-bit BMP format. Input size: {img.size}")
+    logging.debug(f"Target dimensions: {epd.width}x{epd.height}")
     img_1b = img.convert('1') # 1 == black and white, 1bpp
-    img_resized = img_1b.resize((epd.width, epd.height)) # type: ignore
+    target_size = (int(epd.width), int(epd.height))
+    img_resized = img_1b.resize(target_size) # type: ignore
     logging.debug("Conversion and resizing complete")
     return img_resized
 
