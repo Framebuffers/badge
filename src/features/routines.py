@@ -1,5 +1,6 @@
 import logging
 from ..hw import EPD
+from typing import Literal
 from PIL import Image, ImageFont, ImageDraw, ImageFile
 import qrcode
 
@@ -95,6 +96,57 @@ class DisplayRoutines:
     
     def load_img(self, img: ImageFile.ImageFile) -> None:
         self.dp.display(self.dp.getbuffer(img))
+
+    def load_img_scaled(self, img: Image.Image,
+                        aspect_ratio: Literal['stretch', 'center', 'fit', 'tile'] = 'fit') -> None:
+        """Load image scaled to display dimensions with specified aspect ratio mode.
+
+        Args:
+            img: PIL Image to display
+            aspect_ratio: How to handle sizing:
+                - 'stretch': Fill display, ignore aspect ratio
+                - 'center': Center image, crop if larger than display
+                - 'fit': Maintain aspect ratio, fit within display bounds
+                - 'tile': Repeat image to fill display
+        """
+        logging.debug(f'Loading image with aspect ratio: {aspect_ratio}')
+        result = Image.new('1', (self.dp.width, self.dp.height), 255)
+
+        if aspect_ratio == 'stretch':
+            result = img.resize((self.dp.width, self.dp.height))
+
+        elif aspect_ratio == 'center':
+            img_cropped = img
+            if img.width > self.dp.width or img.height > self.dp.height:
+                img_cropped = img.crop((
+                    max(0, (img.width - self.dp.width) // 2),
+                    max(0, (img.height - self.dp.height) // 2),
+                    min(img.width, (img.width + self.dp.width) // 2),
+                    min(img.height, (img.height + self.dp.height) // 2)
+                ))
+            x = max(0, (self.dp.width - img_cropped.width) // 2)
+            y = max(0, (self.dp.height - img_cropped.height) // 2)
+            result.paste(img_cropped, (x, y))
+
+        elif aspect_ratio == 'fit':
+            img_copy = img.copy()
+            img_copy.thumbnail((self.dp.width, self.dp.height), Image.Resampling.LANCZOS)
+            x = (self.dp.width - img_copy.width) // 2
+            y = (self.dp.height - img_copy.height) // 2
+            result.paste(img_copy, (x, y))
+
+        elif aspect_ratio == 'tile':
+            if img.width == 0 or img.height == 0:
+                logging.warning(f"Cannot tile image with 0 dimensions: {img.size}")
+            else:
+                for y in range(0, self.dp.height, img.height):
+                    for x in range(0, self.dp.width, img.width):
+                        tile_width = min(img.width, self.dp.width - x)
+                        tile_height = min(img.height, self.dp.height - y)
+                        result.paste(img.crop((0, 0, tile_width, tile_height)), (x, y))
+
+        self._image = result
+        self._draw = ImageDraw.Draw(self._image)
     
     def clear_canvas(self) -> None:
         """Reset canvas to white"""
