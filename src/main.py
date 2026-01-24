@@ -8,10 +8,8 @@ from PIL import Image
 
 IMG_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'img')
 DEMO_IMG_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'img', 'demo')
-test = DisplayTests()
-display = DisplayRoutines()
 
-def demo_show_and_tell():
+def demo_show_and_tell(display: DisplayRoutines, test: DisplayTests):
     display.clear_canvas()
     display.write_message('wena cabres, bienvenidos a mi presentación', 'top text', False)
     input()
@@ -30,7 +28,7 @@ Its wings are too small to get its fat little body off the ground.
 The bee, of course, flies anyway because bees don't care what humans think is impossible.'''
     
     display.write_message(test_txt, 'Bee Movie script')
-    time.wait(3)
+    time.sleep(3)
     display.clear_canvas()
     test_image = None 
 
@@ -52,14 +50,14 @@ The bee, of course, flies anyway because bees don't care what humans think is im
     test.image()  
 
     display.show_two_columns('https://www.youtube.com/watch?v=dQw4w9WgXcQ', test_image, 'qr', 'image')
-    time.wait(3)
+    time.sleep(3)
     test.draw_shapes(3, False)
     display.show_text('bottom text')
-    time.wait(2)
-    display.fast_mode()
+    time.sleep(2)
+    display.set_fast_mode(True)
     display.show_text('awoo')
     test.draw_shapes(1, False)
-    time.wait(2)
+    time.sleep(2)
     test.draw_shapes(2, True)
     
     display.write_message('también puede dar info sobre la RPi en sí')
@@ -77,23 +75,27 @@ The bee, of course, flies anyway because bees don't care what humans think is im
     
 logging.basicConfig(level=logging.DEBUG)
 
+display = None
 try:
     epd = EPD()
     logging.info('init display')
     epd.init()
-    demo_show_and_tell()
+    display = DisplayRoutines(epd)
+    test = DisplayTests(epd)
+    demo_show_and_tell(display, test)
 except FileNotFoundError:
     logging.error('File not found')
-    time.wait(5)
+    time.sleep(5)
     epd.Clear()
 except KeyboardInterrupt:
     logging.info('interrupted by user')
-    time.wait(5)
+    time.sleep(5)
     epd.Clear()
 except Exception as e:
     logging.error(f'Error: {e}')
-    display.write_exception(e)
-    time.wait(5)
+    if display:
+        display.write_exception(e)
+    time.sleep(5)
     epd.Clear()
 finally:
     epdconfig.module_exit()
