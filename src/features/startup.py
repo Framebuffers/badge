@@ -103,28 +103,70 @@ class HealthStatus:
 
 FONTS_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), 'fonts')
 
+def initial_render(hs: HealthStatus, dr: DisplayRoutines) -> int:
+    """Full render with QR code and status. Returns text_x offset."""
+    dr.create_canvas('horizontal')
+
+    # QR code on the left (only drawn once)
+    ip = hs.get_ip_address()
+    qr_url = f"http://{ip}"
+    qr_size = dr.dp_width - 8
+    dr.create_qr_code(qr_url, qr_size, 4, 4)
+
+    # Text to the right
+    text_x = qr_size + 12
+    status_text = hs.display_status()
+    print(status_text)
+
+    dr.load_txt(status_text)
+    dr.display_txt(os.path.join(FONTS_PATH, 'Font.ttc'), 12, 0, text_x, 4)
+    dr.render(fast=False)  # Full refresh
+
+    return text_x
+
+
+def update_text(hs: HealthStatus, dr: DisplayRoutines, text_x: int) -> None:
+    """Partial refresh for text area only."""
+    # Clear text area (white rectangle)
+    dr.draw_rectangle(text_x, 0, dr.dp_height, dr.dp_width, fill=255)
+
+    # Redraw text
+    status_text = hs.display_status()
+    print(status_text)
+
+    dr.load_txt(status_text)
+    dr.display_txt(os.path.join(FONTS_PATH, 'Font.ttc'), 12, 0, text_x, 4)
+    dr.render(fast=True)  # Partial refresh
+
+
 if __name__ == "__main__":
+    REFRESH_INTERVAL = 30  # seconds
+
     try:
         hs = HealthStatus()
         hs.epd.init()
-
         dr = DisplayRoutines(hs.epd)
-        dr.create_canvas('horizontal')
 
-        # QR code on the left
-        ip = hs.get_ip_address()
-        qr_url = f"http://{ip}"
-        qr_size = dr.dp_width - 8  # Leave 4px margin top/bottom
-        dr.create_qr_code(qr_url, qr_size, 4, 4)
+        # Initial full render with QR code
+        text_x = initial_render(hs, dr)
+        last_ip = hs.get_ip_address()
 
-        # Text to the right of QR code
-        text_x = qr_size + 12  # QR size + margin
-        status_text = hs.display_status()
-        print(status_text)
+        # Subsequent refreshes
+        while True:
+            time.sleep(REFRESH_INTERVAL)
+            current_ip = hs.get_ip_address()
 
-        dr.load_txt(status_text)
-        dr.display_txt(os.path.join(FONTS_PATH, 'Font.ttc'), 12, 0, text_x, 4)
-        dr.render()
+            if current_ip != last_ip:
+                # IP changed, full refresh with new QR code
+                logging.info(f"IP changed: {last_ip} -> {current_ip}")
+                text_x = initial_render(hs, dr)
+                last_ip = current_ip
+            else:
+                # Same IP, partial refresh text only
+                update_text(hs, dr, text_x)
+
+    except KeyboardInterrupt:
+        logging.info("Stopped by user")
     except Exception as e:
         logging.error(f'Error {e}')
     finally:
