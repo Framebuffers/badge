@@ -1,6 +1,6 @@
 import logging
 from PIL import Image
-from hw.epd import EPD
+from ..hw import EPD
 
 class ImageManipulation:
     def __init__(self, epd: EPD) -> None:

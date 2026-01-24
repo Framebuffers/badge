@@ -2,13 +2,13 @@ import logging
 import time
 import psutil # type: ignore
 import os
-from ..hw.epd import EPD, epdconfig
+from ..hw import EPD, epdconfig
 
 class HealthStatus:
     def __init__(self) -> None:
         self.epd = EPD()
 
-    def get_cpu_temp():
+    def get_cpu_temp(self):
         try:
             temp_output = os.popen("vcgencmd measure_temp").readline()
             return temp_output.replace("temp=", "").strip()
@@ -22,7 +22,7 @@ class HealthStatus:
 
         # CPU
         print(f"CPU Load: {psutil.cpu_percent(interval=1)}%")
-        print(f"CPU Temperature: {get_cpu_temp()}")
+        print(f"CPU Temperature: {self.get_cpu_temp()}")
 
         # Memory
         mem = psutil.virtual_memory()

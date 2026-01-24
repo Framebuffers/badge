@@ -1,5 +1,5 @@
 import logging
-from hw.epd import EPD
+from ..hw import EPD
 from PIL import Image, ImageFont, ImageDraw, ImageFile
 import qrcode
 

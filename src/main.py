@@ -2,8 +2,8 @@ import os
 import logging
 import time
 from typing import Literal, List
-from hw import EPD, epdconfig
-from features import DisplayRoutines
+from .hw import EPD, epdconfig
+from .features import DisplayRoutines
 from PIL import Image, ImageDraw
 import random
 
@@ -87,7 +87,7 @@ def test_qr(display: DisplayRoutines, text: str, size, x, y, wait: int = 5):
     logging.debug("QR code created on canvas")
     if display._image:
         logging.debug(f"Canvas size: {display._image.size}, mode: {display._image.mode}")
-    ext.render()
+    display.render()
     logging.debug("Rendered QR code")
     time.sleep(wait)
     display.clear_canvas()
