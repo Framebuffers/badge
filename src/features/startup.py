@@ -1,5 +1,7 @@
 import logging
 import time
+import signal
+import sys
 import psutil # type: ignore
 import os
 import pwd
@@ -142,6 +144,13 @@ def update_text(hs: HealthStatus, dr: DisplayRoutines, text_x: int) -> None:
 if __name__ == "__main__":
     REFRESH_INTERVAL = 30  # seconds
 
+    def shutdown_handler(signum, frame):
+        """Handle SIGTERM from systemd shutdown."""
+        logging.info(f"Received signal {signum}, shutting down...")
+        sys.exit(0)
+
+    signal.signal(signal.SIGTERM, shutdown_handler)
+
     try:
         hs = HealthStatus()
         hs.epd.init()
@@ -170,4 +179,7 @@ if __name__ == "__main__":
     except Exception as e:
         logging.error(f'Error {e}')
     finally:
+        logging.info("Clearing display...")
+        hs.epd.Clear(0xFF)
+        hs.epd.sleep()
         epdconfig.module_exit()
