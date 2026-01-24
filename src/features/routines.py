@@ -258,15 +258,17 @@ class DisplayRoutines:
         """Refreshes the base image with the provided one"""
         self.dp.displayPartBaseImage(self.dp.getbuffer(img))
 
-    def write_message(self, msg: str, src: str = 'Message from: ', justify: bool = True, justify_at: int = 32) -> None:
+    def write_message(self, msg: str, src: str = 'Message', show_datetime: bool = True,
+                      justify: bool = True, justify_at: int = 32) -> None:
         """Display message on screen in a standardised format."""
         logging.info(f"Displaying on-screen a message from {src}: {msg}")
-        msg = [
-            self._text_justify(f"{src} at {time.strftime('%Y-%m-%d %H:%M:%S')}:"),
+        header = f"{src} at {time.strftime('%Y-%m-%d %H:%M:%S')}:" if show_datetime else f"{src}:"
+        lines = [
+            header,
             "-" * 25,
         ] + self._text_justify(msg, justify_at)
-        txt = '\n'.join(msg)
-        self.show_text(txt, justify=True, justify_length=justify_at)
+        txt = '\n'.join(lines)
+        self.show_text(txt, justify=justify, justify_length=justify_at)
 
     def write_exception(self, e: Exception) -> None:
         """Display an exception on screen in a standardised format."""
@@ -279,8 +281,10 @@ class DisplayRoutines:
         logging.debug(f"Displaying exception on screen:\n{txt}")
         self.show_text(txt, justify=True, justify_length=32)
 
-    def print(self, title, content, show_datetime: bool = True, justify: bool = True, justify_at: int = 32):
+    def print(self, title: str, content: str | Exception, show_datetime: bool = True,
+              justify: bool = True, justify_at: int = 32) -> None:
+        """Unified method to display messages or exceptions on screen."""
         if isinstance(content, Exception):
-            self.write_exception(content as Exception)
+            self.write_exception(content)
         else:
-            self.write_message(content, title)
+            self.write_message(content, title, show_datetime, justify, justify_at)
