@@ -127,8 +127,8 @@ def initial_render(hs: HealthStatus, dr: DisplayRoutines) -> int:
 
 def update_text(hs: HealthStatus, dr: DisplayRoutines, text_x: int) -> None:
     """Partial refresh for text area only."""
-    # Clear text area (white rectangle)
-    dr.draw_rectangle(text_x, 0, dr.dp_height, dr.dp_width, fill=255)
+    # Clear text area (white rectangle, no outline)
+    dr.draw_rectangle(text_x, 0, dr.dp_height, dr.dp_width, fill=255, outline=255)
 
     # Redraw text
     status_text = hs.display_status()
