@@ -15,7 +15,7 @@ def demo_show_and_tell(display: DisplayRoutines, test: DisplayTests):
     display.write_message('este es un proyecto que llevo haciendo desde Noviembre del 2025', 'owo what\'s this', False)
     input()
     
-    demo_img = Image.open(os.path.join(DEMO_IMG_PATH, 'mt.png'))
+    demo_img = Image.open(os.path.join(DEMO_IMG_PATH, 'fb.bmp'))
 
     # if the image is not a square, crop it.
     w, h = demo_img.size
@@ -39,7 +39,7 @@ The bee, of course, flies anyway because bees don't care what humans think is im
     display.dp.Clear()
     test_image = None
     try:
-        test_image_path = os.path.join(DEMO_IMG_PATH, 'mt.png')
+        test_image_path = os.path.join(DEMO_IMG_PATH, 'fb.bmp')
         test_image = Image.open(test_image_path)
     except FileNotFoundError:
         test_path = os.path.join(IMG_PATH, 'test')
