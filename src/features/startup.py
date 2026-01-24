@@ -39,6 +39,7 @@ try:
     hs = HealthStatus()
     hs.display_status()
     time.sleep(2)
+    hs.epd.init()
     hs.epd.Clear(0xFF)
         
 except Exception as e:
