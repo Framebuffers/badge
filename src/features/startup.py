@@ -88,7 +88,6 @@ class HealthStatus:
     def display_status(self) -> str:
         mem = psutil.virtual_memory()
         disk = psutil.disk_usage('/')
-        ssid, signal = self.get_wifi_info()
         ssh_count = self.get_ssh_connections()
 
         lines = [
@@ -98,7 +97,7 @@ class HealthStatus:
             f"CPU: {psutil.cpu_percent(interval=1)}% {self.get_cpu_temp()}",
             f"Mem: {mem.percent}% ({mem.available / (1024**3):.1f}GB free)",
             f"Disk: {disk.percent}% ({disk.free / (1024**3):.1f}GB free)",
-            f"WiFi: {ssid} {signal} @ {self.get_ip_address()} ({ssh_count} SSH)",
+            f"WLAN: {self.get_ip_address()} ({ssh_count} SSH)",
         ]
         return "\n".join(lines)
 
@@ -118,9 +117,6 @@ if __name__ == "__main__":
         dr.load_txt(status_text)
         dr.display_txt(os.path.join(FONTS_PATH, 'Font.ttc'), 12, 0, 4, 4)
         dr.render()
-
-        time.sleep(5)
-        hs.epd.Clear(0xFF)
     except Exception as e:
         logging.error(f'Error {e}')
     finally:
