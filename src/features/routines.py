@@ -204,9 +204,33 @@ class DisplayRoutines:
         """Reset canvas to white"""
         if not self._draw or not self._image:
             raise RuntimeError('Canvas not created. Call create_canvas() first')
-        
+
         self.buffer = ''
         self.dp.Clear()
+
+    @staticmethod
+    def crop_to_square(img: Image.Image) -> Image.Image:
+        """Crop image to a centered 1:1 square."""
+        w, h = img.size
+        size = min(w, h)
+        left = (w - size) // 2
+        top = (h - size) // 2
+        return img.crop((left, top, left + size, top + size))
+
+    @staticmethod
+    def rotate_90cw(img: Image.Image) -> Image.Image:
+        """Rotate image 90 degrees clockwise."""
+        return img.transpose(Image.Transpose.ROTATE_270)
+
+    @staticmethod
+    def rotate_90ccw(img: Image.Image) -> Image.Image:
+        """Rotate image 90 degrees counter-clockwise."""
+        return img.transpose(Image.Transpose.ROTATE_90)
+
+    @staticmethod
+    def rotate_180(img: Image.Image) -> Image.Image:
+        """Rotate image 180 degrees."""
+        return img.transpose(Image.Transpose.ROTATE_180)
     
     def create_qr_code(self, data: str, size: int, x: int, y: int) -> None:
         """Create QR code at (x, y). Coordinates are top-left corner of QR code."""
@@ -293,7 +317,8 @@ class DisplayRoutines:
                          left_type: Literal['text', 'qr', 'image'] = 'text',
                          right_type: Literal['text', 'qr', 'image'] = 'text',
                          size: int = 12, font_path: str | None = None,
-                         divider: bool = True) -> None:
+                         divider: bool = True,
+                         left_rotate: bool = False, right_rotate: bool = False) -> None:
         """Display content in two columns with optional divider.
 
         Args:
@@ -304,6 +329,8 @@ class DisplayRoutines:
             size: Font size for text (default 12)
             font_path: Path to font file (default uses Font.ttc)
             divider: Whether to draw a vertical line between columns (default True)
+            left_rotate: Rotate left column content 90° clockwise (default False)
+            right_rotate: Rotate right column content 90° clockwise (default False)
         """
         self.create_canvas('horizontal')
         mid_x = self.dp_height // 2
@@ -312,11 +339,11 @@ class DisplayRoutines:
 
         # Left column
         self._render_column_content(left_content, left_type, 4, 4, mid_x - 8, col_height,
-                                    size, font_path, col_width)
+                                    size, font_path, col_width, left_rotate)
 
         # Right column
         self._render_column_content(right_content, right_type, mid_x + 4, 4, mid_x - 8, col_height,
-                                    size, font_path, col_width)
+                                    size, font_path, col_width, right_rotate)
 
         if divider:
             self.draw_line(mid_x, 0, mid_x, self.dp_width)
@@ -326,25 +353,50 @@ class DisplayRoutines:
     def _render_column_content(self, content: str | Image.Image,
                                content_type: Literal['text', 'qr', 'image'],
                                x: int, y: int, width: int, height: int,
-                               size: int, font_path: str | None, col_width: int) -> None:
+                               size: int, font_path: str | None, col_width: int,
+                               rotate: bool = False) -> None:
         """Render content within a column region."""
         if content_type == 'text':
             if not isinstance(content, str):
                 raise TypeError('Content must be str for text type')
-            self.load_txt(content)
-            self.display_txt(font_path or DEFAULT_FONT, size, 0, x, y, justify=True, justify_at=col_width)
+            if rotate:
+                # Render text to temp image, rotate, then paste
+                temp_img = Image.new('1', (height, width), 255)
+                temp_draw = ImageDraw.Draw(temp_img)
+                font = ImageFont.truetype(font_path or DEFAULT_FONT, size)
+                justified = self._text_justify(content, col_width)
+                temp_draw.text((4, 4), '\n'.join(justified), font=font, fill=0)
+                temp_img = temp_img.transpose(Image.Transpose.ROTATE_270)
+                self._image.paste(temp_img, (x, y))
+            else:
+                self.load_txt(content)
+                self.display_txt(font_path or DEFAULT_FONT, size, 0, x, y, justify=True, justify_at=col_width)
 
         elif content_type == 'qr':
             if not isinstance(content, str):
                 raise TypeError('Content must be str for qr type')
             qr_size = min(width, height - y)
-            self.create_qr_code(content, qr_size, x, y)
+            if rotate:
+                # Create QR to temp image, rotate, then paste
+                qr = qrcode.QRCode(box_size=1, border=0, version=1, error_correction=qrcode.ERROR_CORRECT_L)
+                qr.add_data(content)
+                qr.make(fit=True)
+                qr_img = qr.make_image(fill_color="black", back_color="white")
+                qr_img = qr_img.resize((qr_size, qr_size), Image.Resampling.NEAREST)
+                qr_img = qr_img.transpose(Image.Transpose.ROTATE_270)
+                self._image.paste(qr_img, (x, y))
+            else:
+                self.create_qr_code(content, qr_size, x, y)
 
         elif content_type == 'image':
             if not isinstance(content, Image.Image):
                 raise TypeError('Content must be PIL Image for image type')
             img_copy = content.copy()
-            img_copy.thumbnail((width, height), Image.Resampling.LANCZOS)
+            if rotate:
+                img_copy.thumbnail((height, width), Image.Resampling.LANCZOS)
+                img_copy = img_copy.transpose(Image.Transpose.ROTATE_270)
+            else:
+                img_copy.thumbnail((width, height), Image.Resampling.LANCZOS)
             if img_copy.mode != '1':
                 img_copy = img_copy.convert('1')
             self._image.paste(img_copy, (x, y))

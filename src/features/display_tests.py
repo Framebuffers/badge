@@ -98,10 +98,16 @@ class DisplayTests:
         self.display.clear_canvas()
         logger.info('Test complete')
 
-    def draw_shapes(self, wait: int = 5, clear_canvas: bool = True) -> None:
-        """Test drawing random shapes on canvas."""
-        random.seed(621)
-        self.display.create_canvas('horizontal')
+    def draw_shapes(self, wait: int = 5, clear_canvas: bool = True, refresh: bool = True) -> None:
+        """Test drawing random shapes on canvas.
+
+        Args:
+            wait: Seconds to wait after rendering (only applies if refresh=True)
+            clear_canvas: Whether to clear canvas after wait (only applies if refresh=True)
+            refresh: Whether to render to display. Set False to overlay more content.
+        """
+        if not self.display._image:
+            self.display.create_canvas('horizontal')
 
         for _ in range(10):
             x1_temp = random.randint(0, self.display.dp_width - 1)
@@ -122,12 +128,13 @@ class DisplayTests:
                 self.display.draw_arc(x1, y1, x2, y2, start=0, end=180, fill=0)
 
         logger.debug("Shapes drawn on canvas")
-        self.display.render()
 
-        time.sleep(wait)
-        if clear_canvas:
-            self.display.clear_canvas()
-            logger.info('Canvas cleared')
+        if refresh:
+            self.display.render()
+            time.sleep(wait)
+            if clear_canvas:
+                self.display.clear_canvas()
+                logger.info('Canvas cleared')
 
     def run_all(self, test_image: Image.Image | None = None) -> None:
         """Run all display tests."""

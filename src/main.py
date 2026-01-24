@@ -51,31 +51,41 @@ The bee, of course, flies anyway because bees don't care what humans think is im
         else:
             test_image = Image.new('1', (display.dp.width, display.dp.height), 255)
     
-    for _ in range(2):
-        test.image(test_image, wait=1, aspect_ratio='fit')
-        test.image(test_image, wait=1, aspect_ratio='center')
-        test.image(test_image, wait=1, aspect_ratio='stretch')
-        test.image(test_image, wait=1, aspect_ratio='tile')
-    display.show_two_columns('https://www.youtube.com/watch?v=dQw4w9WgXcQ', test_image, 'qr', 'image')
-    time.sleep(3)
-    test.draw_shapes(3, False)
+    test.image(test_image, wait=1, aspect_ratio='fit')
+    test.image(test_image, wait=1, aspect_ratio='center')
+    test.image(test_image, wait=1, aspect_ratio='stretch')
+    test.image(test_image, wait=1, aspect_ratio='tile')
+
+    display.show_two_columns('https://www.youtube.com/watch?v=dQw4w9WgXcQ', test_image, 'qr', 'image', right_rotate=True)
+    input()
+    
+    test.draw_shapes(3, False, False)
     display.show_text('bottom text')
     time.sleep(2)
+    
     display.set_fast_mode(True)
     display.show_text('awoo')
-    test.draw_shapes(1, False)
+    
+    test.draw_shapes(1, False, False)
     time.sleep(2)
-    test.draw_shapes(2, True)
+    
+    test.draw_shapes(2, True, True)
     
     display.write_message('también puede dar info sobre la RPi en sí')
     input()
     
+    display.dp.Clear()
     hs.display_status()  
+    input()
+    
     display.dp.Clear()
     display.write_message('eso pos cabres, espero que les haya gustado', 'the end')
     input()
     
+    display.dp.Clear()
     display.show_two_columns('https://github.com/framebuffers/badge', 'Link al código acá', 'qr', 'text')
+    input()
+    
     display.dp.Clear()
     display.show_text('hasta la proximaaaaaaaa')
     input()
