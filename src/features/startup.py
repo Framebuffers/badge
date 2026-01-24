@@ -77,12 +77,11 @@ class HealthStatus:
         disk = psutil.disk_usage('/')
         ssid, signal = self.get_wifi_info()
         ssh_count = self.get_ssh_connections()
-        hs = HealthStatus()
 
         lines = [
             time.strftime('%Y-%m-%d %H:%M:%S'),
             "-" * 26,
-            f"{hs.get_user()}@{hs.get_hostname()}"
+            f"{self.get_user()}@{self.get_hostname()}"
             f"CPU: {psutil.cpu_percent(interval=1)}% {self.get_cpu_temp()}",
             f"Mem: {mem.percent}% ({mem.available / (1024**3):.1f}GB free)",
             f"Disk: {disk.percent}% ({disk.free / (1024**3):.1f}GB free)",
