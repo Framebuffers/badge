@@ -95,9 +95,9 @@ class HealthStatus:
             "-" * 26,
             f"{self.get_user()}@{self.get_hostname()} ",
             f"CPU: {psutil.cpu_percent(interval=1)}% {self.get_cpu_temp()}",
-            f"Mem: {mem.percent}% ({mem.available / (1024**3):.1f}GB free)",
-            f"Disk: {disk.percent}% ({disk.free / (1024**3):.1f}GB free)",
-            f"WLAN: {self.get_ip_address()} ({ssh_count} SSH)",
+            f"Mem: {mem.percent}% ({mem.available / (1024**3):.1f}GB)",
+            f"Disk: {disk.percent}% ({disk.free / (1024**3):.1f}GB)",
+            f"{self.get_ip_address()} ({ssh_count} SSH)",
         ]
         return "\n".join(lines)
 
