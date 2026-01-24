@@ -81,7 +81,7 @@ try:
     logging.info('init display')
     epd.init()
     display = DisplayRoutines(epd)
-    test = DisplayTests(epd)
+    test = DisplayTests(display)
     demo_show_and_tell(display, test)
 except FileNotFoundError:
     logging.error('File not found')
