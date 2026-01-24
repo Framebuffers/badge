@@ -2,7 +2,7 @@ import logging
 import time
 import psutil # type: ignore
 import os
-from hw.epd import EPD, epdconfig
+from ..hw.epd import EPD, epdconfig
 
 class HealthStatus:
     def __init__(self) -> None:

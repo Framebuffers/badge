@@ -114,7 +114,6 @@ def test_fast_mode(display: DisplayRoutines, img: List[Image.Image], wait: int =
         display.render(fast=True)
         time.sleep(wait)
 
-
 def test_render_partial(display: DisplayRoutines, img: Image.Image, loops: int = 5):
     logging.info('Testing partial refresh with clock')
 
