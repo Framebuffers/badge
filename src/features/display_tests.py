@@ -98,7 +98,7 @@ class DisplayTests:
         self.display.clear_canvas()
         logger.info('Test complete')
 
-    def draw_shapes(self, wait: int = 5) -> None:
+    def draw_shapes(self, wait: int = 5, clear_canvas: bool = True) -> None:
         """Test drawing random shapes on canvas."""
         random.seed(621)
         self.display.create_canvas('horizontal')
@@ -125,8 +125,9 @@ class DisplayTests:
         self.display.render()
 
         time.sleep(wait)
-        self.display.clear_canvas()
-        logger.info('Canvas cleared')
+        if clear_canvas:
+            self.display.clear_canvas()
+            logger.info('Canvas cleared')
 
     def run_all(self, test_image: Image.Image | None = None) -> None:
         """Run all display tests."""

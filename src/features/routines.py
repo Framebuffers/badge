@@ -288,3 +288,63 @@ class DisplayRoutines:
             self.write_exception(content)
         else:
             self.write_message(content, title, show_datetime, justify, justify_at)
+
+    def show_two_columns(self, left_content: str | Image.Image, right_content: str | Image.Image,
+                         left_type: Literal['text', 'qr', 'image'] = 'text',
+                         right_type: Literal['text', 'qr', 'image'] = 'text',
+                         size: int = 12, font_path: str | None = None,
+                         divider: bool = True) -> None:
+        """Display content in two columns with optional divider.
+
+        Args:
+            left_content: Content for left column (str for text/qr, Image for image)
+            right_content: Content for right column (str for text/qr, Image for image)
+            left_type: Type of left content - 'text', 'qr', or 'image'
+            right_type: Type of right content - 'text', 'qr', or 'image'
+            size: Font size for text (default 12)
+            font_path: Path to font file (default uses Font.ttc)
+            divider: Whether to draw a vertical line between columns (default True)
+        """
+        self.create_canvas('horizontal')
+        mid_x = self.dp_height // 2
+        col_width = (mid_x - 8) // (size // 2)  # approx chars per column
+        col_height = self.dp_width
+
+        # Left column
+        self._render_column_content(left_content, left_type, 4, 4, mid_x - 8, col_height,
+                                    size, font_path, col_width)
+
+        # Right column
+        self._render_column_content(right_content, right_type, mid_x + 4, 4, mid_x - 8, col_height,
+                                    size, font_path, col_width)
+
+        if divider:
+            self.draw_line(mid_x, 0, mid_x, self.dp_width)
+
+        self.render()
+
+    def _render_column_content(self, content: str | Image.Image,
+                               content_type: Literal['text', 'qr', 'image'],
+                               x: int, y: int, width: int, height: int,
+                               size: int, font_path: str | None, col_width: int) -> None:
+        """Render content within a column region."""
+        if content_type == 'text':
+            if not isinstance(content, str):
+                raise TypeError('Content must be str for text type')
+            self.load_txt(content)
+            self.display_txt(font_path or DEFAULT_FONT, size, 0, x, y, justify=True, justify_at=col_width)
+
+        elif content_type == 'qr':
+            if not isinstance(content, str):
+                raise TypeError('Content must be str for qr type')
+            qr_size = min(width, height - y)
+            self.create_qr_code(content, qr_size, x, y)
+
+        elif content_type == 'image':
+            if not isinstance(content, Image.Image):
+                raise TypeError('Content must be PIL Image for image type')
+            img_copy = content.copy()
+            img_copy.thumbnail((width, height), Image.Resampling.LANCZOS)
+            if img_copy.mode != '1':
+                img_copy = img_copy.convert('1')
+            self._image.paste(img_copy, (x, y))
