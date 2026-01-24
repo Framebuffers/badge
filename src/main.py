@@ -10,7 +10,6 @@ IMG_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__
 DEMO_IMG_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'img', 'demo')
 
 def demo_show_and_tell(display: DisplayRoutines, test: DisplayTests):
-    display.clear_canvas()
     display.write_message('wena cabres, bienvenidos a mi presentación', 'top text', False)
     input()
     display.write_message('este es un proyecto que llevo haciendo desde Noviembre del 2025', 'owo what\'s this', False)
@@ -29,7 +28,7 @@ The bee, of course, flies anyway because bees don't care what humans think is im
     
     display.write_message(test_txt, 'Bee Movie script')
     time.sleep(3)
-    display.clear_canvas()
+    epd.Clear()
     test_image = None 
 
     if test_image is None:
@@ -64,12 +63,12 @@ The bee, of course, flies anyway because bees don't care what humans think is im
     input()
     
     hs.display_status()  
-    display.clear_canvas()
+    epd.Clear()
     display.write_message('eso pos cabres, espero que les haya gustado', 'the end')
     input()
     
     display.show_two_columns('https://github.com/framebuffers/badge', 'Link al código acá', 'qr', 'text')
-    display.clear_canvas()
+    epd.Clear()
     display.show_text('hasta la proximaaaaaaaa')
     input()
     
