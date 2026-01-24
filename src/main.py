@@ -56,8 +56,6 @@ The bee, of course, flies anyway because bees don't care what humans think is im
         test.image(test_image, wait=1, aspect_ratio='center')
         test.image(test_image, wait=1, aspect_ratio='stretch')
         test.image(test_image, wait=1, aspect_ratio='tile')
-    test.image()  
-
     display.show_two_columns('https://www.youtube.com/watch?v=dQw4w9WgXcQ', test_image, 'qr', 'image')
     time.sleep(3)
     test.draw_shapes(3, False)

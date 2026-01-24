@@ -208,3 +208,6 @@ __marimo__/
 
 waveshare-test/
 img2lcd/
+
+# Demo images (exist on device only)
+img/demo/
