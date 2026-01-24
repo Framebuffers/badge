@@ -28,10 +28,12 @@ The bee, of course, flies anyway because bees don't care what humans think is im
     
     display.write_message(test_txt, 'Bee Movie script')
     time.sleep(3)
-    epd.Clear()
-    test_image = None 
-
-    if test_image is None:
+    display.dp.Clear()
+    test_image = None
+    try:
+        test_image_path = os.path.join(DEMO_IMG_PATH, 'mt.png')
+        test_image = Image.open(test_image_path)
+    except FileNotFoundError:
         test_path = os.path.join(IMG_PATH, 'test')
         image_files = [f for f in os.listdir(test_path)
                         if f.lower().endswith(('.bmp', '.png', '.jpg', '.jpeg'))]
@@ -63,12 +65,12 @@ The bee, of course, flies anyway because bees don't care what humans think is im
     input()
     
     hs.display_status()  
-    epd.Clear()
+    display.dp.Clear()
     display.write_message('eso pos cabres, espero que les haya gustado', 'the end')
     input()
     
     display.show_two_columns('https://github.com/framebuffers/badge', 'Link al código acá', 'qr', 'text')
-    epd.Clear()
+    display.dp.Clear()
     display.show_text('hasta la proximaaaaaaaa')
     input()
     
@@ -85,17 +87,17 @@ try:
 except FileNotFoundError:
     logging.error('File not found')
     time.sleep(5)
-    epd.Clear()
+    display.dp.Clear()
 except KeyboardInterrupt:
     logging.info('interrupted by user')
     time.sleep(5)
-    epd.Clear()
+    display.dp.Clear()
 except Exception as e:
     logging.error(f'Error: {e}')
     if display:
         display.write_exception(e)
     time.sleep(5)
-    epd.Clear()
+    display.dp.Clear()
 finally:
     epdconfig.module_exit()
 
