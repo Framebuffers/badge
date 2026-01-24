@@ -3,13 +3,15 @@ import logging
 import time 
 import random
 from .hw import EPD, epdconfig
-from .features import DisplayRoutines, DisplayTests, HealthStatus
+from .features import DisplayRoutines, DisplayTests, HealthStatus, startup
 from PIL import Image
 
 IMG_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'img')
 DEMO_IMG_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'img', 'demo')
+FONTS_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'fonts')
+DEFAULT_FONT = os.path.join(FONTS_PATH, 'Font.ttc')
 
-def demo_show_and_tell(display: DisplayRoutines, test: DisplayTests):
+def demo_show_and_tell(display: DisplayRoutines, test: DisplayTests, health: HealthStatus):
     display.write_message('wena cabres, bienvenidos a mi presentación', 'top text', False)
     input()
     display.write_message('este es un proyecto que llevo haciendo desde Noviembre del 2025', 'owo what\'s this', False)
@@ -28,8 +30,7 @@ def demo_show_and_tell(display: DisplayRoutines, test: DisplayTests):
     display.show_text('puedo hacer cosas como: ')
     input()
     
-    hs = HealthStatus()
-    hs.display_status()
+    health.display_status()
     input()
     
     test_txt = '''According to all known laws of aviation, there is no way a bee should be able to fly.
@@ -63,18 +64,27 @@ The bee, of course, flies anyway because bees don't care what humans think is im
     input()
 
     display.set_fast_mode(True)
-    display.show_text('formas aleatorias para generar curvas, líneas, etc', justify=True)    
-    test.draw_shapes(1, False, False)
-    test.draw_shapes(1, False, False)
-    test.draw_shapes(1, False, False)
+    display.create_canvas('horizontal')
+    display.load_txt('formas aleatorias para generar curvas, líneas, etc')
+    display.display_txt(DEFAULT_FONT, 12, 0, 4, 4, justify=True, justify_at=32)
+    test.draw_shapes(3, False, False)
+    display.render()
+    input()
+    test.draw_shapes(3, False, False)
+    display.render()
+    input()
+    test.draw_shapes(3, False, False)
+    display.render()
+    input()
     display.show_text('awoo')
-   
+    input()
+    
     display.dp.Clear() 
     display.write_message('también puede dar info sobre la RPi en sí')
     input()
     
     display.dp.Clear()
-    hs.display_status()  
+    startup.initial_render(health, display)
     input()
     
     display.dp.Clear()
@@ -82,7 +92,7 @@ The bee, of course, flies anyway because bees don't care what humans think is im
     input()
     
     display.dp.Clear()
-    display.show_two_columns('https://github.com/framebuffers/badge', 'Link al código acá', 'qr', 'text')
+    display.show_two_columns('https://github.com/framebuffers/badge', 'Link al código acá', 'qr', 'text', right_rotate=True)
     input()
     
     display.dp.Clear()
@@ -98,7 +108,8 @@ try:
     epd.init()
     display = DisplayRoutines(epd)
     test = DisplayTests(display)
-    demo_show_and_tell(display, test)
+    health = HealthStatus()
+    demo_show_and_tell(display, test, health)
 except FileNotFoundError:
     logging.error('File not found')
     time.sleep(5)
@@ -114,5 +125,6 @@ except Exception as e:
     time.sleep(5)
     display.dp.Clear()
 finally:
+    display.dp.Clear()
     epdconfig.module_exit()
 
