@@ -94,13 +94,11 @@ class HealthStatus:
         lines = [
             time.strftime('%Y-%m-%d %H:%M:%S'),
             "-" * 26,
-            f"{self.get_user()}@{self.get_hostname()}",
-            "",
+            f"{self.get_user()}@{self.get_hostname()} ",
             f"CPU: {psutil.cpu_percent(interval=1)}% {self.get_cpu_temp()}",
             f"Mem: {mem.percent}% ({mem.available / (1024**3):.1f}GB free)",
             f"Disk: {disk.percent}% ({disk.free / (1024**3):.1f}GB free)",
-            f"WiFi: {ssid} {signal}",
-            f"IP: {self.get_ip_address()} ({ssh_count} SSH)",
+            f"WiFi: {ssid} {signal} @ {self.get_ip_address()} ({ssh_count} SSH)",
         ]
         return "\n".join(lines)
 
