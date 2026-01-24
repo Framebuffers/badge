@@ -15,7 +15,15 @@ def demo_show_and_tell(display: DisplayRoutines, test: DisplayTests):
     display.write_message('este es un proyecto que llevo haciendo desde Noviembre del 2025', 'owo what\'s this', False)
     input()
     
-    display.show_two_columns('es un badge', '[placeholder]', 'text', 'image', divider=True)
+    demo_img = Image.open(os.path.join(DEMO_IMG_PATH, 'mt.png'))
+
+    # if the image is not a square, crop it.
+    w, h = demo_img.size
+    size = min(w, h)
+    left = (w - size) // 2
+    top = (h - size) // 2
+    demo_img = demo_img.crop((left, top, left + size, top + size))
+    display.show_two_columns('es un badge', demo_img, 'text', 'image', divider=True)
     input()
     display.show_text('puedo hacer cosas como: ')
     input()
