@@ -107,15 +107,23 @@ if __name__ == "__main__":
     try:
         hs = HealthStatus()
         hs.epd.init()
-        
+
         dr = DisplayRoutines(hs.epd)
         dr.create_canvas('horizontal')
 
+        # QR code on the left
+        ip = hs.get_ip_address()
+        qr_url = f"http://{ip}"
+        qr_size = dr.dp_width - 8  # Leave 4px margin top/bottom
+        dr.create_qr_code(qr_url, qr_size, 4, 4)
+
+        # Text to the right of QR code
+        text_x = qr_size + 12  # QR size + margin
         status_text = hs.display_status()
         print(status_text)
 
         dr.load_txt(status_text)
-        dr.display_txt(os.path.join(FONTS_PATH, 'Font.ttc'), 12, 0, 4, 4)
+        dr.display_txt(os.path.join(FONTS_PATH, 'Font.ttc'), 12, 0, text_x, 4)
         dr.render()
     except Exception as e:
         logging.error(f'Error {e}')
