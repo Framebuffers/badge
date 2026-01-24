@@ -29,25 +29,26 @@ class HealthStatus:
         ]
         return "\n".join(lines)
 
-FONTS_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'fonts')
+FONTS_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), 'fonts')
 
-try:
-    hs = HealthStatus()
-    hs.epd.init()
+if __name__ == "__main__":
+    try:
+        hs = HealthStatus()
+        hs.epd.init()
 
-    dr = DisplayRoutines(hs.epd)
-    dr.create_canvas('horizontal')
+        dr = DisplayRoutines(hs.epd)
+        dr.create_canvas('horizontal')
 
-    status_text = hs.display_status()
-    print(status_text)
+        status_text = hs.display_status()
+        print(status_text)
 
-    dr.load_txt(status_text)
-    dr.display_txt(os.path.join(FONTS_PATH, 'Font.ttc'), 12, 0, 4, 4)
-    dr.render()
+        dr.load_txt(status_text)
+        dr.display_txt(os.path.join(FONTS_PATH, 'Font.ttc'), 12, 0, 4, 4)
+        dr.render()
 
-    time.sleep(5)
-    hs.epd.Clear(0xFF)
-except Exception as e:
-    logging.error(f'Error {e}')
-finally:
-    epdconfig.module_exit()
+        time.sleep(5)
+        hs.epd.Clear(0xFF)
+    except Exception as e:
+        logging.error(f'Error {e}')
+    finally:
+        epdconfig.module_exit()

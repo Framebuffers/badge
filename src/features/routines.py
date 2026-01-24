@@ -1,8 +1,11 @@
 import logging
+import os
 from ..hw import EPD
 from typing import Literal
 from PIL import Image, ImageFont, ImageDraw, ImageFile
 import qrcode
+
+DEFAULT_FONT = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), 'fonts', 'Font.ttc')
 
 class DisplayRoutines:
     def __init__(self, display: EPD) -> None:
@@ -59,10 +62,26 @@ class DisplayRoutines:
         """Render buffered text at coordinates. fill: 0 (black) or 255 (white)"""
         if not self._draw:
             raise RuntimeError('Canvas not created. Call create_canvas() first')
-        
+
         font = ImageFont.truetype(font_path, size)
         self._draw.text((x, y), self.buffer, font=font, fill=fill)
-    
+
+    def show_text(self, text: str, size: int = 12, x: int = 4, y: int = 4,
+                  orientation: str = 'horizontal', font_path: str | None = None) -> None:
+        """Display text on screen with automatic canvas management.
+
+        Args:
+            text: Text to display
+            size: Font size (default 12)
+            x, y: Position (default 4, 4)
+            orientation: 'horizontal' or 'vertical' (default 'horizontal')
+            font_path: Path to font file (default uses Font.ttc)
+        """
+        self.create_canvas(orientation)
+        self.load_txt(text)
+        self.display_txt(font_path or DEFAULT_FONT, size, 0, x, y)
+        self.render()
+
     def draw_line(self, x1: int, y1: int, x2: int, y2: int, fill: int = 0) -> None:
         """Draw line from (x1,y1) to (x2,y2)"""
         if not self._draw:
