@@ -24,8 +24,16 @@ try:
     display.show_text(hs.display_status())
     time.sleep(4)
     epd.Clear(0xFF)
+    
+    test_txt = '''According to all known laws of aviation, there is no way a bee should be able to fly.
+Its wings are too small to get its fat little body off the ground.
+The bee, of course, flies anyway because bees don't care what humans think is impossible.'''
+    
+    display.write_message(test_txt, 'Bee Movie script')
+    
     logging.debug("Display cleared")
     logging.info('\ndone')
+
 
 except FileNotFoundError:
     logging.error('File not found')
