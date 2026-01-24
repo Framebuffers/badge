@@ -178,6 +178,7 @@ if __name__ == "__main__":
         logging.info("Stopped by user")
     except Exception as e:
         logging.error(f'Error {e}')
+        dr.write_exception(e)
     finally:
         logging.info("Clearing display...")
         hs.epd.Clear(0xFF)

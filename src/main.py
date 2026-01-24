@@ -33,5 +33,6 @@ except KeyboardInterrupt:
     logging.info('interrupted by user')
 except Exception as e:
     logging.error(f'Error: {e}')
+    display.write_exception(e)
 finally:
     epdconfig.module_exit()

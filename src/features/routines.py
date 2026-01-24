@@ -1,5 +1,7 @@
 import logging
 import os
+import textwrap
+import time
 from ..hw import EPD
 from typing import Literal
 from PIL import Image, ImageFont, ImageDraw, ImageFile
@@ -54,20 +56,49 @@ class DisplayRoutines:
 
         self._draw = ImageDraw.Draw(self._image)
         logging.debug(f"Canvas created: image={self._image}, draw={self._draw}")
+   
+    def _text_justify(self, s: str, width: int = 64) -> list[str]:
+        lines = s.splitlines()
+        result = []
+        for l in lines:
+            if len(l) < width:
+                result.append(l)
+            else:
+                breaks = textwrap.wrap( l, width, replace_whitespace=False, break_long_words=True, break_on_hyphens=False )
+                for b in breaks[:-1]:
+                    if len(b) == width:
+                        result.append(b)
+                        continue
+                    insert = width-len(b)
+                    words = b.split()
+                    every = insert // (len(words)-1) + 1
+                    extra = insert % (len(words)-1)
+                    for i in range(extra):
+                        words[i] += ' '
+                    result.append( (' '*every).join(words) )
+                result.append( breaks[-1] )
+        return result
     
     def load_txt(self, txt: str) -> None:
         self.buffer = txt
 
-    def display_txt(self, font_path: str, size: int, fill: int, x: int, y: int) -> None:
+    def display_txt(self, font_path: str, size: int, fill: int, x: int, y: int, justify: bool = True, justify_at: int = 32) -> None:
         """Render buffered text at coordinates. fill: 0 (black) or 255 (white)"""
         if not self._draw:
             raise RuntimeError('Canvas not created. Call create_canvas() first')
-
+        
         font = ImageFont.truetype(font_path, size)
-        self._draw.text((x, y), self.buffer, font=font, fill=fill)
+        if justify:
+            str_buffer_justified = self._text_justify(self.buffer, justify_at)
+            txt = '\n'.join(str_buffer_justified)
+        else:
+            txt = self.buffer
+
+        self._draw.text((x, y), txt, font=font, fill=fill)
 
     def show_text(self, text: str, size: int = 12, x: int = 4, y: int = 4,
-                  orientation: str = 'horizontal', font_path: str | None = None) -> None:
+                  orientation: str = 'horizontal', font_path: str | None = None, justify: bool = False,
+                  justify_length: int = 32) -> None:
         """Display text on screen with automatic canvas management.
 
         Args:
@@ -76,10 +107,12 @@ class DisplayRoutines:
             x, y: Position (default 4, 4)
             orientation: 'horizontal' or 'vertical' (default 'horizontal')
             font_path: Path to font file (default uses Font.ttc)
+            justify: Justify the text
+            justify_length: Split words at this amount of characters. Default is 32.
         """
         self.create_canvas(orientation)
         self.load_txt(text)
-        self.display_txt(font_path or DEFAULT_FONT, size, 0, x, y)
+        self.display_txt(font_path or DEFAULT_FONT, size, 0, x, y, justify, justify_length)
         self.render()
 
     def draw_line(self, x1: int, y1: int, x2: int, y2: int, fill: int = 0) -> None:
@@ -224,3 +257,14 @@ class DisplayRoutines:
     def refresh_base_img(self, img: Image.Image) -> None:
         """Refreshes the base image with the provided one"""
         self.dp.displayPartBaseImage(self.dp.getbuffer(img))
+
+    def write_exception(self, e: Exception) -> None:
+        """Display an exception on screen in a standardised format."""
+        logging.error(f"Exception occurred: {e}", exc_info=True)
+        error_lines = [
+            f"An error has occurred at {time.strftime('%Y-%m-%d %H:%M:%S')}:",
+            "-" * 25,
+        ] + self._text_justify(str(e), 32)
+        txt = '\n'.join(error_lines)
+        logging.debug(f"Displaying exception on screen:\n{txt}")
+        self.show_text(txt, justify=True, justify_length=32)
