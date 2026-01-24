@@ -2,6 +2,7 @@ import logging
 import time
 import psutil # type: ignore
 import os
+import pwd
 import socket
 import subprocess
 from ..hw import EPD, epdconfig
@@ -26,9 +27,9 @@ class HealthStatus:
         
     def get_user(self):
         try:
-            return os.getlogin()
+            return pwd.getpwuid(os.getuid()).pw_name
         except Exception as e:
-            return (f'An exception has been raised while trying to get hostname: {e}')
+            return "N/A"
         
     def get_kernel_version(self):
         try:
@@ -72,6 +73,18 @@ class HealthStatus:
         except:
             return 0
 
+    def get_ip_address(self) -> str:
+        """Returns the primary IP address."""
+        try:
+            # Connect to a public DNS to determine outbound IP
+            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            s.connect(("8.8.8.8", 80))
+            ip = s.getsockname()[0]
+            s.close()
+            return ip
+        except:
+            return "N/A"
+
     def display_status(self) -> str:
         mem = psutil.virtual_memory()
         disk = psutil.disk_usage('/')
@@ -81,12 +94,13 @@ class HealthStatus:
         lines = [
             time.strftime('%Y-%m-%d %H:%M:%S'),
             "-" * 26,
-            f"{self.get_user()}@{self.get_hostname()}"
+            f"{self.get_user()}@{self.get_hostname()}",
+            "",
             f"CPU: {psutil.cpu_percent(interval=1)}% {self.get_cpu_temp()}",
             f"Mem: {mem.percent}% ({mem.available / (1024**3):.1f}GB free)",
             f"Disk: {disk.percent}% ({disk.free / (1024**3):.1f}GB free)",
             f"WiFi: {ssid} {signal}",
-            f"SSH: {ssh_count} connection{'s' if ssh_count != 1 else ''}",
+            f"IP: {self.get_ip_address()} ({ssh_count} SSH)",
         ]
         return "\n".join(lines)
 
@@ -96,7 +110,7 @@ if __name__ == "__main__":
     try:
         hs = HealthStatus()
         hs.epd.init()
-
+        
         dr = DisplayRoutines(hs.epd)
         dr.create_canvas('horizontal')
 
