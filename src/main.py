@@ -23,19 +23,22 @@ def demo_show_and_tell(display: DisplayRoutines, test: DisplayTests):
     left = (w - size) // 2
     top = (h - size) // 2
     demo_img = demo_img.crop((left, top, left + size, top + size))
-    display.show_two_columns('es un badge', demo_img, 'text', 'image', divider=True)
+    display.show_two_columns('es un badge', demo_img, 'text', 'image', divider=True, right_rotate=True)
     input()
     display.show_text('puedo hacer cosas como: ')
     input()
     
     hs = HealthStatus()
+    hs.display_status()
+    input()
     
     test_txt = '''According to all known laws of aviation, there is no way a bee should be able to fly.
 Its wings are too small to get its fat little body off the ground.
 The bee, of course, flies anyway because bees don't care what humans think is impossible.'''
     
     display.write_message(test_txt, 'Bee Movie script')
-    time.sleep(3)
+    input()
+    
     display.dp.Clear()
     test_image = None
     try:
@@ -58,19 +61,15 @@ The bee, of course, flies anyway because bees don't care what humans think is im
 
     display.show_two_columns('https://www.youtube.com/watch?v=dQw4w9WgXcQ', test_image, 'qr', 'image', right_rotate=True)
     input()
-    
-    test.draw_shapes(3, False, False)
-    display.show_text('bottom text')
-    time.sleep(2)
-    
+
     display.set_fast_mode(True)
-    display.show_text('awoo')
-    
+    display.show_text('formas aleatorias para generar curvas, líneas, etc', justify=True)    
     test.draw_shapes(1, False, False)
-    time.sleep(2)
-    
-    test.draw_shapes(2, True, True)
-    
+    test.draw_shapes(1, False, False)
+    test.draw_shapes(1, False, False)
+    display.show_text('awoo')
+   
+    display.dp.Clear() 
     display.write_message('también puede dar info sobre la RPi en sí')
     input()
     
