@@ -63,14 +63,18 @@ def module_init():
 
 def module_exit():
     logger.debug("spi end")
-    SPI.close() # type: ignore
-    
-    GPIO_RST_PIN.off() # type: ignore
-    GPIO_DC_PIN.off() # type: ignore
-    GPIO_PWR_PIN.off() # type: ignore
+    if SPI is not None:
+        SPI.close()
+
+    if GPIO_RST_PIN is not None:
+        GPIO_RST_PIN.off()
+        GPIO_RST_PIN.close()
+    if GPIO_DC_PIN is not None:
+        GPIO_DC_PIN.off()
+        GPIO_DC_PIN.close()
+    if GPIO_PWR_PIN is not None:
+        GPIO_PWR_PIN.off()
+        GPIO_PWR_PIN.close()
+    if GPIO_BUSY_PIN is not None:
+        GPIO_BUSY_PIN.close()
     logger.debug("close 5V, Module enters 0 power consumption ...")
-    
-    GPIO_RST_PIN.close() # type: ignore
-    GPIO_DC_PIN.close() # type: ignore
-    GPIO_PWR_PIN.close() # type: ignore
-    GPIO_BUSY_PIN.close() # type: ignore

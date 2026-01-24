@@ -41,6 +41,7 @@ try:
     time.sleep(2)
     hs.epd.init()
     hs.epd.Clear(0xFF)
-        
 except Exception as e:
     logging.error(f'Error {e}')
+finally:
+    epdconfig.module_exit()
