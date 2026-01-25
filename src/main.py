@@ -6,18 +6,25 @@ from .hw import EPD, epdconfig
 from .features import DisplayRoutines, DisplayTests, HealthStatus, startup
 from PIL import Image
 
-IMG_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'img')
-DEMO_IMG_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'img', 'demo')
+TEST_IMG_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'img', 'test')
 FONTS_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'fonts')
 DEFAULT_FONT = os.path.join(FONTS_PATH, 'Font.ttc')
 
 def demo_show_and_tell(display: DisplayRoutines, test: DisplayTests, health: HealthStatus):
+    image_files = [f for f in os.listdir(TEST_IMG_PATH)
+                   if f.lower().endswith(('.bmp', '.png', '.jpg', '.jpeg'))]
+
+    def get_random_test_image():
+        if image_files:
+            return Image.open(os.path.join(TEST_IMG_PATH, random.choice(image_files)))
+        return Image.new('1', (display.dp.width, display.dp.height), 255)
+
     display.write_message('wena cabres, bienvenidos a mi presentación', 'top text', False)
     input()
     display.write_message('este es un proyecto que llevo haciendo desde Noviembre del 2025', 'owo what\'s this', False)
     input()
-    
-    demo_img = Image.open(os.path.join(DEMO_IMG_PATH, 'fb.bmp'))
+
+    demo_img = get_random_test_image()
 
     # if the image is not a square, crop it.
     w, h = demo_img.size
@@ -41,26 +48,12 @@ The bee, of course, flies anyway because bees don't care what humans think is im
     input()
     
     display.dp.Clear()
-    test_image = None
-    try:
-        test_image_path = os.path.join(DEMO_IMG_PATH, 'fb.bmp')
-        test_image = Image.open(test_image_path)
-    except FileNotFoundError:
-        test_path = os.path.join(IMG_PATH, 'test')
-        image_files = [f for f in os.listdir(test_path)
-                        if f.lower().endswith(('.bmp', '.png', '.jpg', '.jpeg'))]
-        if image_files:
-            random_file = random.choice(image_files)
-            test_image = Image.open(os.path.join(test_path, random_file))
-        else:
-            test_image = Image.new('1', (display.dp.width, display.dp.height), 255)
-    
-    test.image(test_image, wait=1, aspect_ratio='fit')
-    test.image(test_image, wait=1, aspect_ratio='center')
-    test.image(test_image, wait=1, aspect_ratio='stretch')
-    test.image(test_image, wait=1, aspect_ratio='tile')
+    test.image(get_random_test_image(), wait=1, aspect_ratio='fit')
+    test.image(get_random_test_image(), wait=1, aspect_ratio='center')
+    test.image(get_random_test_image(), wait=1, aspect_ratio='stretch')
+    test.image(get_random_test_image(), wait=1, aspect_ratio='tile')
 
-    display.show_two_columns('https://www.youtube.com/watch?v=dQw4w9WgXcQ', test_image, 'qr', 'image', right_rotate=True)
+    display.show_two_columns('https://www.youtube.com/watch?v=dQw4w9WgXcQ', get_random_test_image(), 'qr', 'image', right_rotate=True)
     input()
 
     display.set_fast_mode(True)
@@ -98,6 +91,8 @@ The bee, of course, flies anyway because bees don't care what humans think is im
     display.dp.Clear()
     display.show_text('hasta la proximaaaaaaaa')
     input()
+
+    display.dp.Clear()
     
 logging.basicConfig(level=logging.DEBUG)
 
