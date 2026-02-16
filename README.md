@@ -2,7 +2,7 @@
 
 ![](https://github.com/user-attachments/assets/b880e606-48bb-42b3-b6e2-5abcf55ab245)
 
-Code for my furcon badge. Built for [SAFE2026](https://www.furcrew.cl/).
+Code for my badge.
 
 
 ## 🖥️ Specs
@@ -25,3 +25,4 @@ Code for my furcon badge. Built for [SAFE2026](https://www.furcrew.cl/).
 ## ℹ️ Things to know
 
 It's gonna go on top of a laser, CNC-cut cardboard base. Probably going to print a base + integrated case for the Pi.
+
