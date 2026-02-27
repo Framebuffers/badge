@@ -58,9 +58,9 @@ The bee, of course, flies anyway because bees don't care what humans think is im
     input()
 
     display.set_fast_mode(True)
-    display.create_canvas('horizontal')
+    display.create_canvas('vertical')
     display.load_txt('formas aleatorias para generar curvas, líneas, etc')
-    display.display_txt(DEFAULT_FONT, 12, 0, 4, 4, justify=True, justify_at=32)
+    display.display_txt(DEFAULT_FONT, 12, 0, 4, 4, justify=True, justify_at=20)
     test.draw_shapes(3, False, False)
     display.render()
     input()

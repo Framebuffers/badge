@@ -21,8 +21,8 @@ def cmd_message(args, display, **_):
 
 
 def cmd_qr(args, display, **_):
-    display.create_canvas('horizontal')
-    qr_size = min(display.dp_width, display.dp_height) - 8
+    display.create_canvas('vertical')
+    qr_size = display.dp_width - 8
     if args.size:
         qr_size = args.size
     display.create_qr_code(args.data, qr_size, 4, 4)

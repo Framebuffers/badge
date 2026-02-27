@@ -97,18 +97,18 @@ class DisplayRoutines:
         self._draw.text((x, y), txt, font=font, fill=fill)
 
     def show_text(self, text: str, size: int = 12, x: int = 4, y: int = 4,
-                  orientation: str = 'horizontal', font_path: str | None = None, justify: bool = False,
-                  justify_length: int = 32) -> None:
+                  orientation: str = 'vertical', font_path: str | None = None, justify: bool = False,
+                  justify_length: int = 20) -> None:
         """Display text on screen with automatic canvas management.
 
         Args:
             text: Text to display
             size: Font size (default 12)
             x, y: Position (default 4, 4)
-            orientation: 'horizontal' or 'vertical' (default 'horizontal')
+            orientation: 'vertical' (portrait) or 'horizontal' (landscape) (default 'vertical')
             font_path: Path to font file (default uses Font.ttc)
             justify: Justify the text
-            justify_length: Split words at this amount of characters. Default is 32.
+            justify_length: Split words at this amount of characters. Default is 20.
         """
         self.create_canvas(orientation)
         self.load_txt(text)
@@ -153,9 +153,6 @@ class DisplayRoutines:
                         aspect_ratio: Literal['stretch', 'center', 'fit', 'tile'] = 'fit') -> None:
         """Load image scaled to portrait display dimensions with specified aspect ratio mode.
 
-        Canvas is created in landscape (height x width) and rotated at render time
-        by getbuffer() to match the portrait EPD.
-
         Args:
             img: PIL Image to display
             aspect_ratio: How to handle sizing:
@@ -165,43 +162,39 @@ class DisplayRoutines:
                 - 'tile': Repeat image to fill display
         """
         logging.debug(f'Loading image with aspect ratio: {aspect_ratio}')
-        # Canvas dimensions in portrait (what the user sees)
-        canvas_w = self.dp.width   # narrow side (122)
-        canvas_h = self.dp.height  # tall side (250)
-        # Working image is landscape (height x width), rotated by getbuffer()
-        result = Image.new('1', (canvas_h, canvas_w), 255)
+        result = Image.new('1', (self.dp.width, self.dp.height), 255)
 
         if aspect_ratio == 'stretch':
-            result = img.resize((canvas_h, canvas_w))
+            result = img.resize((self.dp.width, self.dp.height))
 
         elif aspect_ratio == 'center':
             img_cropped = img
-            if img.width > canvas_h or img.height > canvas_w:
+            if img.width > self.dp.width or img.height > self.dp.height:
                 img_cropped = img.crop((
-                    max(0, (img.width - canvas_h) // 2),
-                    max(0, (img.height - canvas_w) // 2),
-                    min(img.width, (img.width + canvas_h) // 2),
-                    min(img.height, (img.height + canvas_w) // 2)
+                    max(0, (img.width - self.dp.width) // 2),
+                    max(0, (img.height - self.dp.height) // 2),
+                    min(img.width, (img.width + self.dp.width) // 2),
+                    min(img.height, (img.height + self.dp.height) // 2)
                 ))
-            x = max(0, (canvas_h - img_cropped.width) // 2)
-            y = max(0, (canvas_w - img_cropped.height) // 2)
+            x = max(0, (self.dp.width - img_cropped.width) // 2)
+            y = max(0, (self.dp.height - img_cropped.height) // 2)
             result.paste(img_cropped, (x, y))
 
         elif aspect_ratio == 'fit':
             img_copy = img.copy()
-            img_copy.thumbnail((canvas_h, canvas_w), Image.Resampling.LANCZOS)
-            x = (canvas_h - img_copy.width) // 2
-            y = (canvas_w - img_copy.height) // 2
+            img_copy.thumbnail((self.dp.width, self.dp.height), Image.Resampling.LANCZOS)
+            x = (self.dp.width - img_copy.width) // 2
+            y = (self.dp.height - img_copy.height) // 2
             result.paste(img_copy, (x, y))
 
         elif aspect_ratio == 'tile':
             if img.width == 0 or img.height == 0:
                 logging.warning(f"Cannot tile image with 0 dimensions: {img.size}")
             else:
-                for y in range(0, canvas_w, img.height):
-                    for x in range(0, canvas_h, img.width):
-                        tile_width = min(img.width, canvas_h - x)
-                        tile_height = min(img.height, canvas_w - y)
+                for y in range(0, self.dp.height, img.height):
+                    for x in range(0, self.dp.width, img.width):
+                        tile_width = min(img.width, self.dp.width - x)
+                        tile_height = min(img.height, self.dp.height - y)
                         result.paste(img.crop((0, 0, tile_width, tile_height)), (x, y))
 
         self._image = result
@@ -296,13 +289,13 @@ class DisplayRoutines:
         self.dp.displayPartBaseImage(self.dp.getbuffer(img))
 
     def write_message(self, msg: str, src: str = 'Message', show_datetime: bool = True,
-                      justify: bool = True, justify_at: int = 32) -> None:
+                      justify: bool = True, justify_at: int = 20) -> None:
         """Display message on screen in a standardised format."""
         logging.info(f"Displaying on-screen a message from {src}: {msg}")
         header = f"{src} at {time.strftime('%Y-%m-%d %H:%M:%S')}:" if show_datetime else f"{src}:"
         lines = [
             header,
-            "-" * 25,
+            "-" * 20,
         ] + self._text_justify(msg, justify_at)
         txt = '\n'.join(lines)
         self.show_text(txt, justify=justify, justify_length=justify_at)
@@ -311,12 +304,12 @@ class DisplayRoutines:
         """Display an exception on screen in a standardised format."""
         logging.error(f"Exception occurred: {e}", exc_info=True)
         error_lines = [
-            f"An error has occurred at {time.strftime('%Y-%m-%d %H:%M:%S')}:",
-            "-" * 25,
-        ] + self._text_justify(str(e), 32)
+            f"Error at {time.strftime('%H:%M:%S')}:",
+            "-" * 20,
+        ] + self._text_justify(str(e), 20)
         txt = '\n'.join(error_lines)
         logging.debug(f"Displaying exception on screen:\n{txt}")
-        self.show_text(txt, justify=True, justify_length=32)
+        self.show_text(txt, justify=True, justify_length=20)
 
     def print(self, title: str, content: str | Exception, show_datetime: bool = True,
               justify: bool = True, justify_at: int = 32) -> None:
@@ -332,34 +325,37 @@ class DisplayRoutines:
                          size: int = 12, font_path: str | None = None,
                          divider: bool = True,
                          left_rotate: bool = False, right_rotate: bool = False) -> None:
-        """Display content in two columns with optional divider.
+        """Display content in two panels (top/bottom) on portrait screen.
+
+        On the portrait display (122x250), content is stacked vertically:
+        the 'left' content appears on top, 'right' content on the bottom.
 
         Args:
-            left_content: Content for left column (str for text/qr, Image for image)
-            right_content: Content for right column (str for text/qr, Image for image)
-            left_type: Type of left content - 'text', 'qr', or 'image'
-            right_type: Type of right content - 'text', 'qr', or 'image'
+            left_content: Content for top panel (str for text/qr, Image for image)
+            right_content: Content for bottom panel (str for text/qr, Image for image)
+            left_type: Type of top content - 'text', 'qr', or 'image'
+            right_type: Type of bottom content - 'text', 'qr', or 'image'
             size: Font size for text (default 12)
             font_path: Path to font file (default uses Font.ttc)
-            divider: Whether to draw a vertical line between columns (default True)
-            left_rotate: Rotate left column content 90° clockwise (default False)
-            right_rotate: Rotate right column content 90° clockwise (default False)
+            divider: Whether to draw a horizontal line between panels (default True)
+            left_rotate: Rotate top panel content 90° clockwise (default False)
+            right_rotate: Rotate bottom panel content 90° clockwise (default False)
         """
-        self.create_canvas('horizontal')
-        mid_x = self.dp_height // 2
-        col_width = (mid_x - 8) // (size // 2)  # approx chars per column
-        col_height = self.dp_width
+        self.create_canvas('vertical')
+        mid_y = self.dp_height // 2
+        panel_width = self.dp_width
+        col_chars = (panel_width - 8) // (size // 2)  # approx chars per panel
 
-        # Left column
-        self._render_column_content(left_content, left_type, 4, 4, mid_x - 8, col_height,
-                                    size, font_path, col_width, left_rotate)
+        # Top panel ("left" content)
+        self._render_column_content(left_content, left_type, 4, 4, panel_width - 8, mid_y - 8,
+                                    size, font_path, col_chars, left_rotate)
 
-        # Right column
-        self._render_column_content(right_content, right_type, mid_x + 4, 4, mid_x - 8, col_height,
-                                    size, font_path, col_width, right_rotate)
+        # Bottom panel ("right" content)
+        self._render_column_content(right_content, right_type, 4, mid_y + 4, panel_width - 8, mid_y - 8,
+                                    size, font_path, col_chars, right_rotate)
 
         if divider:
-            self.draw_line(mid_x, 0, mid_x, self.dp_width)
+            self.draw_line(0, mid_y, self.dp_width, mid_y)
 
         self.render()
 
@@ -388,7 +384,7 @@ class DisplayRoutines:
         elif content_type == 'qr':
             if not isinstance(content, str):
                 raise TypeError('Content must be str for qr type')
-            qr_size = min(width, height - y)
+            qr_size = min(width, height)
             if rotate:
                 # Create QR to temp image, rotate, then paste
                 qr = qrcode.QRCode(box_size=1, border=0, version=1, error_correction=qrcode.ERROR_CORRECT_L)

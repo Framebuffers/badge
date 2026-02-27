@@ -106,38 +106,38 @@ class HealthStatus:
 FONTS_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), 'fonts')
 
 def initial_render(hs: HealthStatus, dr: DisplayRoutines) -> int:
-    """Full render with QR code and status. Returns text_x offset."""
-    dr.create_canvas('horizontal')
+    """Full render with QR on top, status below. Returns text_y offset."""
+    dr.create_canvas('vertical')
 
-    # QR code on the left (only drawn once)
+    # QR code on top
     ip = hs.get_ip_address()
     qr_url = f"http://{ip}"
     qr_size = dr.dp_width - 8
     dr.create_qr_code(qr_url, qr_size, 4, 4)
 
-    # Text to the right
-    text_x = qr_size + 12
+    # Status text below QR
+    text_y = qr_size + 12
     status_text = hs.display_status()
     print(status_text)
 
     dr.load_txt(status_text)
-    dr.display_txt(os.path.join(FONTS_PATH, 'Font.ttc'), 12, 0, text_x, 4)
+    dr.display_txt(os.path.join(FONTS_PATH, 'Font.ttc'), 12, 0, 4, text_y)
     dr.render(fast=False)  # Full refresh
 
-    return text_x
+    return text_y
 
 
-def update_text(hs: HealthStatus, dr: DisplayRoutines, text_x: int) -> None:
+def update_text(hs: HealthStatus, dr: DisplayRoutines, text_y: int) -> None:
     """Partial refresh for text area only."""
-    # Clear text area (white rectangle, no outline)
-    dr.draw_rectangle(text_x, 0, dr.dp_height, dr.dp_width, fill=255, outline=255)
+    # Clear text area below QR (white rectangle, no outline)
+    dr.draw_rectangle(0, text_y, dr.dp_width, dr.dp_height, fill=255, outline=255)
 
     # Redraw text
     status_text = hs.display_status()
     print(status_text)
 
     dr.load_txt(status_text)
-    dr.display_txt(os.path.join(FONTS_PATH, 'Font.ttc'), 12, 0, text_x, 4)
+    dr.display_txt(os.path.join(FONTS_PATH, 'Font.ttc'), 12, 0, 4, text_y)
     dr.render(fast=True)  # Partial refresh
 
 
