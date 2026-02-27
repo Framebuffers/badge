@@ -151,7 +151,10 @@ class DisplayRoutines:
 
     def load_img_scaled(self, img: Image.Image,
                         aspect_ratio: Literal['stretch', 'center', 'fit', 'tile'] = 'fit') -> None:
-        """Load image scaled to display dimensions with specified aspect ratio mode.
+        """Load image scaled to portrait display dimensions with specified aspect ratio mode.
+
+        Canvas is created in landscape (height x width) and rotated at render time
+        by getbuffer() to match the portrait EPD.
 
         Args:
             img: PIL Image to display
@@ -162,39 +165,43 @@ class DisplayRoutines:
                 - 'tile': Repeat image to fill display
         """
         logging.debug(f'Loading image with aspect ratio: {aspect_ratio}')
-        result = Image.new('1', (self.dp.width, self.dp.height), 255)
+        # Canvas dimensions in portrait (what the user sees)
+        canvas_w = self.dp.width   # narrow side (122)
+        canvas_h = self.dp.height  # tall side (250)
+        # Working image is landscape (height x width), rotated by getbuffer()
+        result = Image.new('1', (canvas_h, canvas_w), 255)
 
         if aspect_ratio == 'stretch':
-            result = img.resize((self.dp.width, self.dp.height))
+            result = img.resize((canvas_h, canvas_w))
 
         elif aspect_ratio == 'center':
             img_cropped = img
-            if img.width > self.dp.width or img.height > self.dp.height:
+            if img.width > canvas_h or img.height > canvas_w:
                 img_cropped = img.crop((
-                    max(0, (img.width - self.dp.width) // 2),
-                    max(0, (img.height - self.dp.height) // 2),
-                    min(img.width, (img.width + self.dp.width) // 2),
-                    min(img.height, (img.height + self.dp.height) // 2)
+                    max(0, (img.width - canvas_h) // 2),
+                    max(0, (img.height - canvas_w) // 2),
+                    min(img.width, (img.width + canvas_h) // 2),
+                    min(img.height, (img.height + canvas_w) // 2)
                 ))
-            x = max(0, (self.dp.width - img_cropped.width) // 2)
-            y = max(0, (self.dp.height - img_cropped.height) // 2)
+            x = max(0, (canvas_h - img_cropped.width) // 2)
+            y = max(0, (canvas_w - img_cropped.height) // 2)
             result.paste(img_cropped, (x, y))
 
         elif aspect_ratio == 'fit':
             img_copy = img.copy()
-            img_copy.thumbnail((self.dp.width, self.dp.height), Image.Resampling.LANCZOS)
-            x = (self.dp.width - img_copy.width) // 2
-            y = (self.dp.height - img_copy.height) // 2
+            img_copy.thumbnail((canvas_h, canvas_w), Image.Resampling.LANCZOS)
+            x = (canvas_h - img_copy.width) // 2
+            y = (canvas_w - img_copy.height) // 2
             result.paste(img_copy, (x, y))
 
         elif aspect_ratio == 'tile':
             if img.width == 0 or img.height == 0:
                 logging.warning(f"Cannot tile image with 0 dimensions: {img.size}")
             else:
-                for y in range(0, self.dp.height, img.height):
-                    for x in range(0, self.dp.width, img.width):
-                        tile_width = min(img.width, self.dp.width - x)
-                        tile_height = min(img.height, self.dp.height - y)
+                for y in range(0, canvas_w, img.height):
+                    for x in range(0, canvas_h, img.width):
+                        tile_width = min(img.width, canvas_h - x)
+                        tile_height = min(img.height, canvas_w - y)
                         result.paste(img.crop((0, 0, tile_width, tile_height)), (x, y))
 
         self._image = result
@@ -232,11 +239,11 @@ class DisplayRoutines:
         """Rotate image 180 degrees."""
         return img.transpose(Image.Transpose.ROTATE_180)
     
-    def create_qr_code(self, data: str, size: int, x: int, y: int, rotate: bool = True) -> None:
+    def create_qr_code(self, data: str, size: int, x: int, y: int, rotate: bool = False) -> None:
         """Create QR code at (x, y). Coordinates are top-left corner of QR code.
 
         Args:
-            rotate: Rotate QR 90° clockwise for vertical display (default True).
+            rotate: Rotate QR 90° clockwise (default False, getbuffer handles global rotation).
         """
         if not self._image:
             raise RuntimeError('Canvas not created. Call create_canvas() first')

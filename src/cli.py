@@ -1,7 +1,6 @@
 import argparse
 import logging
 import os
-import sys
 import time
 
 from PIL import Image
@@ -26,7 +25,7 @@ def cmd_qr(args, display, **_):
     qr_size = min(display.dp_width, display.dp_height) - 8
     if args.size:
         qr_size = args.size
-    display.create_qr_code(args.data, qr_size, 4, 4, rotate=not args.no_rotate)
+    display.create_qr_code(args.data, qr_size, 4, 4)
     display.render()
 
 
@@ -111,7 +110,7 @@ def build_parser():
     p = sub.add_parser('qr', help='Generate and display a QR code')
     p.add_argument('data', help='Data to encode')
     p.add_argument('--size', type=int, default=None, help='QR code size in pixels')
-    p.add_argument('--no-rotate', action='store_true', help='Do not rotate QR 90 degrees')
+
 
     # image
     p = sub.add_parser('image', help='Show an image file')

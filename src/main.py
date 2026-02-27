@@ -33,7 +33,7 @@ def demo_show_and_tell(display: DisplayRoutines, test: DisplayTests, health: Hea
     left = (w - size) // 2
     top = (h - size) // 2
     demo_img = demo_img.crop((left, top, left + size, top + size))
-    display.show_two_columns('es un badge', demo_img, 'text', 'image', divider=True, right_rotate=True)
+    display.show_two_columns('es un badge', demo_img, 'text', 'image', divider=True)
     input()
     display.show_text('puedo hacer cosas como: ')
     input()
@@ -54,7 +54,7 @@ The bee, of course, flies anyway because bees don't care what humans think is im
     test.image(get_random_test_image(), wait=1, aspect_ratio='stretch')
     test.image(get_random_test_image(), wait=1, aspect_ratio='tile')
 
-    display.show_two_columns('https://www.youtube.com/watch?v=dQw4w9WgXcQ', get_random_test_image(), 'qr', 'image', right_rotate=True)
+    display.show_two_columns('https://www.youtube.com/watch?v=dQw4w9WgXcQ', get_random_test_image(), 'qr', 'image')
     input()
 
     display.set_fast_mode(True)
@@ -86,7 +86,7 @@ The bee, of course, flies anyway because bees don't care what humans think is im
     input()
     
     display.dp.Clear()
-    display.show_two_columns('https://github.com/framebuffers/badge', 'Link al código acá', 'qr', 'text', right_rotate=True)
+    display.show_two_columns('https://github.com/framebuffers/badge', 'Link al código acá', 'qr', 'text')
     input()
     
     display.dp.Clear()

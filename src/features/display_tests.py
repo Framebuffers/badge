@@ -110,10 +110,10 @@ class DisplayTests:
             self.display.create_canvas('horizontal')
 
         for _ in range(10):
-            x1_temp = random.randint(0, self.display.dp_width - 1)
-            y1_temp = random.randint(0, self.display.dp_height - 1)
-            x2_temp = random.randint(0, self.display.dp_width - 1)
-            y2_temp = random.randint(0, self.display.dp_height - 1)
+            x1_temp = random.randint(0, self.display.dp_height - 1)
+            y1_temp = random.randint(0, self.display.dp_width - 1)
+            x2_temp = random.randint(0, self.display.dp_height - 1)
+            y2_temp = random.randint(0, self.display.dp_width - 1)
 
             x1, x2 = min(x1_temp, x2_temp), max(x1_temp, x2_temp)
             y1, y2 = min(y1_temp, y2_temp), max(y1_temp, y2_temp)
