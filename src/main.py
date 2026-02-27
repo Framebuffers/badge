@@ -1,9 +1,10 @@
 import os
 import logging
-import time 
+import time
 import random
 from .hw import EPD, epdconfig
 from .features import DisplayRoutines, DisplayTests, HealthStatus, startup
+from .features.clear import kill_display_processes
 from PIL import Image
 
 TEST_IMG_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'img', 'test')
@@ -98,6 +99,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 display = None
 try:
+    kill_display_processes()
     epd = EPD()
     logging.info('init display')
     epd.init()

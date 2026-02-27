@@ -232,8 +232,12 @@ class DisplayRoutines:
         """Rotate image 180 degrees."""
         return img.transpose(Image.Transpose.ROTATE_180)
     
-    def create_qr_code(self, data: str, size: int, x: int, y: int) -> None:
-        """Create QR code at (x, y). Coordinates are top-left corner of QR code."""
+    def create_qr_code(self, data: str, size: int, x: int, y: int, rotate: bool = True) -> None:
+        """Create QR code at (x, y). Coordinates are top-left corner of QR code.
+
+        Args:
+            rotate: Rotate QR 90° clockwise for vertical display (default True).
+        """
         if not self._image:
             raise RuntimeError('Canvas not created. Call create_canvas() first')
         
@@ -252,7 +256,9 @@ class DisplayRoutines:
         qr.make(fit=True)
         qr_img = qr.make_image(fill_color="black", back_color="white")
         qr_img = qr_img.resize((size, size), Image.Resampling.NEAREST) # type: ignore
-        
+        if rotate:
+            qr_img = qr_img.transpose(Image.Transpose.ROTATE_270)
+
         self._image.paste(qr_img, (x, y))
         
     def set_fast_mode(self, enabled: bool) -> None:
