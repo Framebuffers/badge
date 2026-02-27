@@ -6,7 +6,7 @@ import time
 
 from PIL import Image
 
-from .hw import EPD, epdconfig
+from .hw import EPD
 from .features import DisplayRoutines, DisplayTests, HealthStatus, startup
 from .features.clear import kill_display_processes
 
@@ -188,7 +188,7 @@ def main():
         time.sleep(5)
         epd.Clear()
     finally:
-        epdconfig.module_exit()
+        epd.sleep()
 
 
 if __name__ == '__main__':
