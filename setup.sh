@@ -32,6 +32,8 @@ sudo apt-get install -y -qq \
   libtiff6 \
   libfreetype6-dev \
   wireless-tools \
+  swig \
+  liblgpio-dev \
   >/dev/null
 
 ok "System packages installed."
