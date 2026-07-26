@@ -12,3 +12,6 @@ dependencies = [
     "lgpio>=0.2",
     "psutil>=6.0",
 ]
+
+[project.optional-dependencies]
+dev = ["pyinstaller>=6.0"]
