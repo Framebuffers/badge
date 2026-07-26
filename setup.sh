@@ -32,7 +32,6 @@ sudo apt-get install -y -qq \
   libtiff6 \
   libfreetype6-dev \
   wireless-tools \
-  libraspberrypi-bin \
   >/dev/null
 
 ok "System packages installed."
