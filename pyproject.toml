@@ -4,4 +4,11 @@ version = "0.3.0"
 description = "framebuffer's badge"
 readme = "README.md"
 requires-python = ">=3.13"
-dependencies = []
+dependencies = [
+    "pillow>=11.0",
+    "qrcode>=8.0",
+    "spidev>=3.6",
+    "gpiozero>=2.0",
+    "lgpio>=0.2",
+    "psutil>=6.0",
+]

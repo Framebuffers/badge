@@ -2,6 +2,10 @@ import logging
 import time
 import spidev
 import gpiozero
+from gpiozero.pins.lgpio import LGPIOFactory
+from gpiozero import Device
+
+Device.pin_factory = LGPIOFactory()
 
 logger = logging.getLogger(__name__)
 

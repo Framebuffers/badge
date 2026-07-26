@@ -16,8 +16,9 @@ class HealthStatus:
 
     def get_cpu_temp(self) -> str:
         try:
-            temp_output = os.popen("vcgencmd measure_temp").readline()
-            return temp_output.replace("temp=", "").strip()
+            with open("/sys/class/thermal/thermal_zone0/temp") as f:
+                millidegrees = int(f.read().strip())
+            return f"{millidegrees / 1000:.1f}'C"
         except:
             return "N/A"
 
