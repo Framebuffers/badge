@@ -1,4 +1,4 @@
 #! /bin/sh
 
 git pull
-python src/main.py
+uv run python -m src.main
